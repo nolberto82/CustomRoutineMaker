@@ -109,14 +109,17 @@ namespace PS1AsmToGameshark
 					{
 						StringBuilder sb = new StringBuilder();
 						byte[] temp = File.ReadAllBytes("out.bin");
-						uint addr = Convert.ToUInt32(textAddress.Text,16);
+						uint addr = Convert.ToUInt32(textAddress.Text, 16);
 
 						for (int i = 0; i < temp.Length / 4; i++)
 						{
 							int[] number = new int[1];
 							Buffer.BlockCopy(temp, i * 4, number, 0, 4);
-							sb.AppendLine((addr + 0).ToString("X4") + " " + (number[0] & 0xffff).ToString("X4"));
-							sb.AppendLine((addr + 2).ToString("X4") + " " + ((number[0] & 0xffff0000) >> 16).ToString("X4"));
+							if (number[0] != 0)
+							{
+								sb.AppendLine((addr + 0).ToString("X4") + " " + (number[0] & 0xffff).ToString("X4"));
+								sb.AppendLine((addr + 2).ToString("X4") + " " + ((number[0] & 0xffff0000) >> 16).ToString("X4"));
+							}
 							addr += 4;
 						}
 						textGS.Text = sb.ToString();
