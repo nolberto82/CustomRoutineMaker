@@ -164,6 +164,7 @@ namespace PS1AsmToGameshark
 			this.MaximizeBox = false;
 			this.Name = "Form1";
 			this.Text = "PS1 Mips Asm To Gameshark Converter";
+			this.Load += new System.EventHandler(this.Form1_Load);
 			this.statusBar.ResumeLayout(false);
 			this.statusBar.PerformLayout();
 			this.ResumeLayout(false);

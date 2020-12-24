@@ -45,6 +45,8 @@ namespace PS1AsmToGameshark
 			{
 				asm_filename = ofd.FileName;
 				textAsm.Text = File.ReadAllText(ofd.FileName);
+				int index = textAsm.Text.IndexOf("out.bin") + 12;
+				textAddress.Text = textAsm.Text.Substring(index, 8);
 			}
 		}
 
@@ -60,6 +62,7 @@ namespace PS1AsmToGameshark
 				{
 					asm_filename = sfd.FileName;
 					File.WriteAllText(sfd.FileName, textAsm.Text);
+
 				}
 			}
 			else
@@ -94,7 +97,7 @@ namespace PS1AsmToGameshark
 
 					if (textGS.Text == "")
 					{
-						StringBuilder sb = new StringBuilder();		
+						StringBuilder sb = new StringBuilder();
 						byte[] temp = File.ReadAllBytes("out.bin");
 						uint addr = Convert.ToUInt32(textAddress.Text);
 
@@ -132,11 +135,20 @@ namespace PS1AsmToGameshark
 		{
 			StringBuilder sb = new StringBuilder();
 			sb.AppendLine(".psx");
-			sb.AppendLine(@".create ""out.bin"", 0x80000000");
+			sb.AppendLine(@".create ""out.bin"", 0x" + textAddress.Text);
 			sb.AppendLine("\n");
 			sb.AppendLine(".close");
 			textAsm.Text = sb.ToString();
 			asm_filename = "";
+		}
+
+		private void Form1_Load(object sender, EventArgs e)
+		{
+			if (!File.Exists("armips.exe"))
+			{
+				MessageBox.Show("You need the armips assembler", "Error");
+				this.Close();
+			}
 		}
 	}
 }
