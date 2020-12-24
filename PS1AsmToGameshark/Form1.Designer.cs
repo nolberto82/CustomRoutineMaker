@@ -128,11 +128,12 @@ namespace PS1AsmToGameshark
 			// 
 			this.textAddress.Location = new System.Drawing.Point(561, 19);
 			this.textAddress.Margin = new System.Windows.Forms.Padding(5);
+			this.textAddress.MaxLength = 8;
 			this.textAddress.Name = "textAddress";
 			this.textAddress.Size = new System.Drawing.Size(534, 30);
 			this.textAddress.TabIndex = 8;
-			this.textAddress.Text = "80000000";
 			this.textAddress.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			this.textAddress.TextChanged += new System.EventHandler(this.textAddress_TextChanged);
 			// 
 			// labelAddress
 			// 

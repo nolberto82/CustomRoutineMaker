@@ -15,16 +15,17 @@ namespace PS1AsmToGameshark
 	public partial class Form1 : Form
 	{
 		string asm_filename;
+
 		public Form1()
 		{
 			InitializeComponent();
 
-			CheckForButtonState();
+			UpdateButtonState();
 
 			UpdateStatusBar();
 		}
 
-		private void CheckForButtonState()
+		private void UpdateButtonState()
 		{
 			if (textAsm.Text == string.Empty)
 			{
@@ -33,6 +34,15 @@ namespace PS1AsmToGameshark
 			else
 			{
 				btnAsm.Enabled = true;
+			}
+
+			if (textAddress.Text.Length < 8)
+			{
+				btnNew.Enabled = false;
+			}
+			else
+			{
+				btnNew.Enabled = true;
 			}
 		}
 		private void btnOpen_Click(object sender, EventArgs e)
@@ -73,7 +83,7 @@ namespace PS1AsmToGameshark
 
 		private void textAsm_TextChanged(object sender, EventArgs e)
 		{
-			CheckForButtonState();
+			UpdateButtonState();
 			UpdateStatusBar();
 		}
 
@@ -149,6 +159,11 @@ namespace PS1AsmToGameshark
 				MessageBox.Show("You need the armips assembler", "Error");
 				this.Close();
 			}
+		}
+
+		private void textAddress_TextChanged(object sender, EventArgs e)
+		{
+			UpdateButtonState();
 		}
 	}
 }
