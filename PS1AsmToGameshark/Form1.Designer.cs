@@ -39,12 +39,13 @@ namespace PS1AsmToGameshark
 			this.btnNew = new System.Windows.Forms.Button();
 			this.textAddress = new System.Windows.Forms.TextBox();
 			this.labelAddress = new System.Windows.Forms.Label();
+			this.comboBox1 = new System.Windows.Forms.ComboBox();
 			this.statusBar.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// textGS
 			// 
-			this.textGS.Location = new System.Drawing.Point(561, 105);
+			this.textGS.Location = new System.Drawing.Point(561, 139);
 			this.textGS.Margin = new System.Windows.Forms.Padding(5);
 			this.textGS.Multiline = true;
 			this.textGS.Name = "textGS";
@@ -53,18 +54,17 @@ namespace PS1AsmToGameshark
 			// 
 			// btnAsm
 			// 
-			this.btnAsm.Location = new System.Drawing.Point(561, 56);
+			this.btnAsm.Location = new System.Drawing.Point(561, 90);
 			this.btnAsm.Margin = new System.Windows.Forms.Padding(5);
 			this.btnAsm.Name = "btnAsm";
 			this.btnAsm.Size = new System.Drawing.Size(263, 39);
 			this.btnAsm.TabIndex = 2;
 			this.btnAsm.Text = "Save Asm";
 			this.btnAsm.UseVisualStyleBackColor = true;
-			this.btnAsm.Click += new System.EventHandler(this.btnAsm_Click);
 			// 
 			// btnAssemble
 			// 
-			this.btnAssemble.Location = new System.Drawing.Point(834, 56);
+			this.btnAssemble.Location = new System.Drawing.Point(834, 90);
 			this.btnAssemble.Margin = new System.Windows.Forms.Padding(5);
 			this.btnAssemble.Name = "btnAssemble";
 			this.btnAssemble.Size = new System.Drawing.Size(263, 39);
@@ -75,7 +75,7 @@ namespace PS1AsmToGameshark
 			// 
 			// btnOpen
 			// 
-			this.btnOpen.Location = new System.Drawing.Point(287, 56);
+			this.btnOpen.Location = new System.Drawing.Point(287, 90);
 			this.btnOpen.Margin = new System.Windows.Forms.Padding(5);
 			this.btnOpen.Name = "btnOpen";
 			this.btnOpen.Size = new System.Drawing.Size(263, 39);
@@ -87,7 +87,7 @@ namespace PS1AsmToGameshark
 			// textAsm
 			// 
 			this.textAsm.AcceptsTab = true;
-			this.textAsm.Location = new System.Drawing.Point(14, 105);
+			this.textAsm.Location = new System.Drawing.Point(14, 139);
 			this.textAsm.Margin = new System.Windows.Forms.Padding(5);
 			this.textAsm.Multiline = true;
 			this.textAsm.Name = "textAsm";
@@ -100,7 +100,7 @@ namespace PS1AsmToGameshark
 			// 
 			this.statusBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.statusAsm});
-			this.statusBar.Location = new System.Drawing.Point(0, 795);
+			this.statusBar.Location = new System.Drawing.Point(0, 822);
 			this.statusBar.Name = "statusBar";
 			this.statusBar.Padding = new System.Windows.Forms.Padding(2, 0, 23, 0);
 			this.statusBar.Size = new System.Drawing.Size(1110, 22);
@@ -115,7 +115,7 @@ namespace PS1AsmToGameshark
 			// 
 			// btnNew
 			// 
-			this.btnNew.Location = new System.Drawing.Point(14, 56);
+			this.btnNew.Location = new System.Drawing.Point(14, 90);
 			this.btnNew.Margin = new System.Windows.Forms.Padding(5);
 			this.btnNew.Name = "btnNew";
 			this.btnNew.Size = new System.Drawing.Size(263, 39);
@@ -126,7 +126,7 @@ namespace PS1AsmToGameshark
 			// 
 			// textAddress
 			// 
-			this.textAddress.Location = new System.Drawing.Point(561, 19);
+			this.textAddress.Location = new System.Drawing.Point(561, 53);
 			this.textAddress.Margin = new System.Windows.Forms.Padding(5);
 			this.textAddress.MaxLength = 8;
 			this.textAddress.Name = "textAddress";
@@ -138,18 +138,31 @@ namespace PS1AsmToGameshark
 			// labelAddress
 			// 
 			this.labelAddress.Font = new System.Drawing.Font("Consolas", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.labelAddress.Location = new System.Drawing.Point(14, 19);
+			this.labelAddress.Location = new System.Drawing.Point(14, 53);
 			this.labelAddress.Name = "labelAddress";
 			this.labelAddress.Size = new System.Drawing.Size(534, 30);
 			this.labelAddress.TabIndex = 9;
 			this.labelAddress.Text = "Set Address For The Custom Routine On The Textbox";
 			this.labelAddress.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			// 
+			// comboBox1
+			// 
+			this.comboBox1.FormattingEnabled = true;
+			this.comboBox1.Items.AddRange(new object[] {
+            "PS1",
+            "PS2"});
+			this.comboBox1.Location = new System.Drawing.Point(18, 12);
+			this.comboBox1.Name = "comboBox1";
+			this.comboBox1.Size = new System.Drawing.Size(121, 30);
+			this.comboBox1.TabIndex = 10;
+			this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 22F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(1110, 817);
+			this.ClientSize = new System.Drawing.Size(1110, 844);
+			this.Controls.Add(this.comboBox1);
 			this.Controls.Add(this.labelAddress);
 			this.Controls.Add(this.textAddress);
 			this.Controls.Add(this.btnNew);
@@ -184,6 +197,7 @@ namespace PS1AsmToGameshark
 		private System.Windows.Forms.Button btnNew;
 		private System.Windows.Forms.TextBox textAddress;
 		private System.Windows.Forms.Label labelAddress;
+		private System.Windows.Forms.ComboBox comboBox1;
 	}
 }
 

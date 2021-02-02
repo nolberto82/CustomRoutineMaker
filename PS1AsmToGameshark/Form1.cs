@@ -17,19 +17,14 @@ namespace PS1AsmToGameshark
 			UpdateButtonState();
 
 			UpdateStatusBar();
+
+			btnAsm.Enabled = false;
+			comboBox1.SelectedIndex = 0;
+			textAddress.CharacterCasing = CharacterCasing.Upper;
 		}
 
 		private void UpdateButtonState()
 		{
-			if (textAsm.Text == string.Empty)
-			{
-				btnAsm.Enabled = false;
-			}
-			else
-			{
-				btnAsm.Enabled = true;
-			}
-
 			if (textAddress.Text.Length < 8)
 			{
 				btnNew.Enabled = false;
@@ -54,7 +49,7 @@ namespace PS1AsmToGameshark
 			}
 		}
 
-		private void btnAsm_Click(object sender, EventArgs e)
+		private void SaveFile()
 		{
 			SaveFileDialog sfd = new SaveFileDialog();
 			sfd.Filter = "ASM Files (*.asm)|*.asm";
@@ -85,6 +80,8 @@ namespace PS1AsmToGameshark
 		{
 			if (textAsm.Text != "")
 			{
+				SaveFile();
+
 				ProcessStartInfo app = new ProcessStartInfo();
 				app.WorkingDirectory = Environment.CurrentDirectory;
 				app.FileName = "armips.exe";
@@ -111,8 +108,16 @@ namespace PS1AsmToGameshark
 							Buffer.BlockCopy(temp, i * 4, number, 0, 4);
 							if (number[0] != 0)
 							{
-								sb.AppendLine((addr + 0).ToString("X4") + " " + (number[0] & 0xffff).ToString("X4"));
-								sb.AppendLine((addr + 2).ToString("X4") + " " + ((number[0] & 0xffff0000) >> 16).ToString("X4"));
+								if (comboBox1.Text == "PS1")
+								{
+									sb.AppendLine((addr + 0).ToString("X4") + " " + (number[0] & 0xffff).ToString("X4"));
+									sb.AppendLine((addr + 2).ToString("X4") + " " + ((number[0] & 0xffff0000) >> 16).ToString("X4"));
+								}
+								else
+								{
+									sb.AppendLine((addr + 0).ToString("X4") + " " + (number[0]).ToString("X8"));
+								}
+
 							}
 							addr += 4;
 						}
@@ -141,7 +146,17 @@ namespace PS1AsmToGameshark
 		private void btnNew_Click(object sender, EventArgs e)
 		{
 			StringBuilder sb = new StringBuilder();
-			sb.AppendLine(".psx");
+
+			switch (comboBox1.Text)
+			{
+				case "PS1":
+					sb.AppendLine(".psx");
+					break;
+				case "PS2":
+					sb.AppendLine(".ps2");
+					break;
+			}
+
 			sb.AppendLine(@".create ""out.bin"", 0x" + textAddress.Text);
 			sb.AppendLine("\n");
 			sb.AppendLine(".close");
@@ -160,7 +175,25 @@ namespace PS1AsmToGameshark
 
 		private void textAddress_TextChanged(object sender, EventArgs e)
 		{
+			if (textAddress.Text.Length == 8)
+			{
+				switch(textAddress.Text.Substring(0,1))
+				{
+					case "8":
+						comboBox1.Text = "PS1";
+						break;
+					case "2":
+						comboBox1.Text = "PS2";
+						break;
+				}
+			}
+
 			UpdateButtonState();
+		}
+
+		private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+		{
+
 		}
 	}
 }
