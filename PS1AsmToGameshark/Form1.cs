@@ -178,7 +178,21 @@ namespace PS1AsmToGameshark
             }
 
             sb.AppendLine(@".create ""out.bin"", 0x" + textAddress.Text);
+
             sb.AppendLine("\n");
+
+            sb.AppendLine(@".org" + "\t" + "0x");
+            sb.AppendLine(@"j" + "\t" + "0x" + textAddress.Text);
+
+            sb.AppendLine("\n");
+
+            sb.AppendLine(@".org" + "\t" + "0x" + textAddress.Text);
+
+            sb.AppendLine("\n");
+            sb.AppendLine("\n");
+            sb.AppendLine("\n");
+
+            sb.AppendLine(@"j" + "\t" + "0x");
             sb.AppendLine(".close");
             textAsm.Text = sb.ToString();
             asm_filename = "";
