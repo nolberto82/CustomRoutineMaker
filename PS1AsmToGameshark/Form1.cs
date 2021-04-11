@@ -123,10 +123,17 @@ namespace PS1AsmToGameshark
                                 else
                                 {
                                     sb.AppendLine((addr + 0).ToString("X4") + " " + (number[0]).ToString("X8"));
+                                    sb2.AppendLine("patch=1,EE," + (addr + 0).ToString("X4") + ",extended," + (number[0]).ToString("X8"));
                                 }
 
                             }
                             addr += 4;
+                        }
+
+                        if (comboBox1.Text == "PS2")
+                        {
+                            sb.AppendLine("");
+                            sb.AppendLine("//PCSX2 pnatch");
                         }
 
                         if (comboBox1.Text == "PSP")
@@ -137,8 +144,9 @@ namespace PS1AsmToGameshark
 
                         textGS.Text = sb.ToString();
 
-                        if (comboBox1.Text == "PSP")
+                        if (comboBox1.Text == "PSP" || comboBox1.Text == "PS2")
                             textGS.Text += sb2.ToString();
+
                     }
                 }
             }
@@ -231,6 +239,21 @@ namespace PS1AsmToGameshark
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void btnConvert_Click(object sender, EventArgs e)
+        {
+            string[] lines = textPS2.Lines;
+
+            textPnach.Text = "";
+
+            foreach (string s in lines)
+            {
+                if (s == "" || s == null)
+                    continue;
+                string[] split = s.Split(' ');
+                textPnach.Text += $"patch=1,EE,{split[0]:X4},extended,{split[1]:X8}\n";
+            }
         }
     }
 }
