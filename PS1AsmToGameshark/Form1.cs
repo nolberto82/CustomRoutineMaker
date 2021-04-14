@@ -116,7 +116,7 @@ namespace PS1AsmToGameshark
                                 }
                                 else if (comboBox1.Text == "PSP")
                                 {
-                                    string convertedstr = (addr + 0).ToString("X4").Replace("880", "0x2000");
+                                    string convertedstr = (addr + 0).ToString("X4").Replace("88", "0x200");
                                     sb.AppendLine(convertedstr + " 0x" + (number[0]).ToString("X8"));
                                     sb2.AppendLine("_L " + convertedstr + " 0x" + (number[0]).ToString("X8"));
                                 }
