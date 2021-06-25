@@ -252,6 +252,12 @@ namespace PS1AsmToGameshark
                 if (s == "" || s == null)
                     continue;
                 string[] split = s.Split(' ');
+                if (split.Length == 1)
+                {
+                    textPnach.Text += $"patch=1,EE,{split[0]:X4},extended, value missing";
+                    break;
+                }
+
                 textPnach.Text += $"patch=1,EE,{split[0]:X4},extended,{split[1]:X8}\n";
             }
         }
