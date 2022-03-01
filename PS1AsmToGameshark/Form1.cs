@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -109,10 +110,15 @@ namespace PS1AsmToGameshark
                             Buffer.BlockCopy(temp, i * 4, number, 0, 4);
                             if (number[0] != 0)
                             {
-                                if (comboBox1.Text == "PS1")
+                                if (comboBox1.Text == "PS1" || comboBox1.Text == "GBA")
                                 {
-                                    sb.AppendLine((addr + 0).ToString("X4") + " " + (number[0] & 0xffff).ToString("X4"));
-                                    sb.AppendLine((addr + 2).ToString("X4") + " " + ((number[0] & 0xffff0000) >> 16).ToString("X4"));
+                                    sb.AppendLine((addr + 0).ToString("X4").PadLeft(8, '0') + " " + (number[0] & 0xffff).ToString("X4"));
+                                    sb.AppendLine((addr + 2).ToString("X4").PadLeft(8, '0') + " " + ((number[0] & 0xffff0000) >> 16).ToString("X4"));
+
+                                    if (comboBox1.Text == "GBA")
+                                    {
+                                        sb2.AppendLine((addr + 0).ToString("X4").PadLeft(8, '0') + " " + (number[0]).ToString("X8"));
+                                    }
                                 }
                                 else if (comboBox1.Text == "PSP")
                                 {
@@ -142,9 +148,15 @@ namespace PS1AsmToGameshark
                             sb.AppendLine("//CWCheat version");
                         }
 
+                        if (comboBox1.Text == "GBA")
+                        {
+                            sb.AppendLine("");
+                            sb.AppendLine("//Action Replay Unencrypted");
+                        }
+
                         textGS.Text = sb.ToString();
 
-                        if (comboBox1.Text == "PSP" || comboBox1.Text == "PS2")
+                        if (comboBox1.Text == "PSP" || comboBox1.Text == "PS2" || comboBox1.Text == "GBA")
                             textGS.Text += sb2.ToString();
 
                     }
@@ -183,6 +195,10 @@ namespace PS1AsmToGameshark
                 case "PSP":
                     sb.AppendLine(".psp");
                     break;
+                case "GBA":
+                    sb.AppendLine(".gba");
+                    sb.AppendLine(".thumb");
+                    break;
             }
 
             sb.AppendLine(@".create ""out.bin"", 0x" + textAddress.Text);
@@ -190,7 +206,15 @@ namespace PS1AsmToGameshark
             sb.AppendLine("\n");
 
             sb.AppendLine(@".org" + "\t" + "0x");
-            sb.AppendLine(@"j" + "\t" + "0x" + textAddress.Text);
+
+            if (comboBox1.Text == "GBA")
+            {
+                sb.AppendLine(@"ldr" + "\t" + "r0,=0x" + textAddress.Text);
+                sb.AppendLine(@"mov" + "\t" + "r0,pc");
+                sb.AppendLine(@".pool");
+            }
+            else
+                sb.AppendLine(@"j" + "\t" + "0x" + textAddress.Text);
 
             sb.AppendLine("\n");
 
@@ -200,7 +224,11 @@ namespace PS1AsmToGameshark
             sb.AppendLine("\n");
             sb.AppendLine("\n");
 
-            sb.AppendLine(@"j" + "\t" + "0x");
+            if (comboBox1.Text == "GBA")
+                sb.AppendLine(@"bx" + "\t" + "lr");
+            else
+                sb.AppendLine(@"j" + "\t" + "0x");
+
             sb.AppendLine(".close");
             textAsm.Text = sb.ToString();
             asm_filename = "";
@@ -215,26 +243,29 @@ namespace PS1AsmToGameshark
             }
         }
 
-        private void textAddress_TextChanged(object sender, EventArgs e)
-        {
-            if (textAddress.Text.Length == 8)
-            {
-                switch (textAddress.Text.Substring(0, 2))
-                {
-                    case "80":
-                        comboBox1.Text = "PS1";
-                        break;
-                    case "20":
-                        comboBox1.Text = "PS2";
-                        break;
-                    case "08":
-                        comboBox1.Text = "PSP";
-                        break;
-                }
-            }
+        //private void textAddress_TextChanged(object sender, EventArgs e)
+        //{
+        //    if (textAddress.Text.Length == 8)
+        //    {
+        //        switch (textAddress.Text.Substring(0, 3))
+        //        {
+        //            case "80":
+        //                comboBox1.Text = "PS1";
+        //                break;
+        //            case "20":
+        //                comboBox1.Text = "PS2";
+        //                break;
+        //            case "088":
+        //                comboBox1.Text = "PSP";
+        //                break;
+        //            case "08":
+        //                comboBox1.Text = "GBA";
+        //                break;
+        //        }
+        //    }
 
-            UpdateButtonState();
-        }
+        //    UpdateButtonState();
+        //}
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -243,6 +274,7 @@ namespace PS1AsmToGameshark
 
         private void btnConvert_Click(object sender, EventArgs e)
         {
+            AR34 ar = new AR34();
             string[] lines = textPS2.Lines;
 
             textPnach.Text = "";
@@ -258,7 +290,17 @@ namespace PS1AsmToGameshark
                     break;
                 }
 
-                textPnach.Text += $"patch=1,EE,{split[0]:X4},extended,{split[1]:X8}\n";
+                if (comboBox1.Text == "GBA")
+                {
+                    List<string> res = ar.Encrypt(s);
+                    foreach (string st in res)
+                        textPnach.Text += st + Environment.NewLine;
+                }
+                else
+                {
+                    textPnach.Text += $"patch=1,EE,{split[0]:X4},extended,{split[1]:X8}\n";
+                }
+
             }
         }
     }

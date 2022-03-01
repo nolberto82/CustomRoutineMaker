@@ -138,7 +138,6 @@ namespace PS1AsmToGameshark
             this.textAddress.Size = new System.Drawing.Size(709, 30);
             this.textAddress.TabIndex = 8;
             this.textAddress.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.textAddress.TextChanged += new System.EventHandler(this.textAddress_TextChanged);
             // 
             // labelAddress
             // 
@@ -156,7 +155,8 @@ namespace PS1AsmToGameshark
             this.comboBox1.Items.AddRange(new object[] {
             "PS1",
             "PS2",
-            "PSP"});
+            "PSP",
+            "GBA"});
             this.comboBox1.Location = new System.Drawing.Point(18, 12);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(121, 30);
