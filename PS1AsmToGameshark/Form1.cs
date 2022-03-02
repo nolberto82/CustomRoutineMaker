@@ -5,7 +5,7 @@ using System.IO;
 using System.Text;
 using System.Windows.Forms;
 
-namespace PS1AsmToGameshark
+namespace CustomRoutineMaker
 {
     public partial class Form1 : Form
     {
@@ -28,7 +28,7 @@ namespace PS1AsmToGameshark
 
         private void UpdateButtonState()
         {
-            if (textAddress.Text.Length < 8)
+            if (textAddress.Text.Length == 0)
             {
                 btnNew.Enabled = false;
             }
@@ -237,7 +237,7 @@ namespace PS1AsmToGameshark
             if (comboBox1.Text == "GBA")
             {
                 sb.AppendLine(@"ldr" + "\t" + "r0,=0x" + textAddress.Text);
-                sb.AppendLine(@"mov" + "\t" + "r0,pc");
+                sb.AppendLine(@"mov" + "\t" + "pc,r0");
                 sb.AppendLine(@".pool");
             }
             else
@@ -252,7 +252,7 @@ namespace PS1AsmToGameshark
             sb.AppendLine("\n");
 
             if (comboBox1.Text == "GBA")
-                sb.AppendLine(@"bx" + "\t" + "lr");
+                sb.AppendLine(@"mov" + "\t" + "pc,r7");
             else
                 sb.AppendLine(@"j" + "\t" + "0x");
 
@@ -334,6 +334,11 @@ namespace PS1AsmToGameshark
                 }
 
             }
+        }
+
+        private void textAddress_TextChanged(object sender, EventArgs e)
+        {
+            UpdateButtonState();
         }
     }
 }

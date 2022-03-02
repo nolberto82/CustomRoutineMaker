@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PS1AsmToGameshark
+namespace CustomRoutineMaker
 {
     internal class CodeLine
     {

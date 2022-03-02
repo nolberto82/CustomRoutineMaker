@@ -1,5 +1,5 @@
 ﻿
-namespace PS1AsmToGameshark
+namespace CustomRoutineMaker
 {
 	partial class Form1
 	{
@@ -138,6 +138,7 @@ namespace PS1AsmToGameshark
             this.textAddress.Size = new System.Drawing.Size(709, 30);
             this.textAddress.TabIndex = 8;
             this.textAddress.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.textAddress.TextChanged += new System.EventHandler(this.textAddress_TextChanged);
             // 
             // labelAddress
             // 
@@ -217,7 +218,7 @@ namespace PS1AsmToGameshark
             this.Margin = new System.Windows.Forms.Padding(5);
             this.MaximizeBox = false;
             this.Name = "Form1";
-            this.Text = "PS1 Mips Asm To Gameshark Converter";
+            this.Text = "CustomRoutineMaker";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.statusBar.ResumeLayout(false);
             this.statusBar.PerformLayout();
