@@ -10,7 +10,7 @@ namespace PS1AsmToGameshark
     public partial class Form1 : Form
     {
         string asm_filename;
-
+        AR34 ar34;
         public Form1()
         {
             InitializeComponent();
@@ -18,6 +18,8 @@ namespace PS1AsmToGameshark
             UpdateButtonState();
 
             UpdateStatusBar();
+
+            ar34 = new AR34();
 
             btnAsm.Enabled = false;
             comboBox1.SelectedIndex = 0;
@@ -117,7 +119,37 @@ namespace PS1AsmToGameshark
 
                                     if (comboBox1.Text == "GBA")
                                     {
-                                        sb2.AppendLine((addr + 0).ToString("X4").PadLeft(8, '0') + " " + (number[0]).ToString("X8"));
+                                        string lines = (addr + 0).ToString("X4").PadLeft(8, '0') + " " + (number[0]).ToString("X8");
+                                        if (lines != "")
+                                        {
+                                            int addrt = Convert.ToInt32(lines.Substring(0, 8), 16) >> 24;
+                                            string[] words;
+
+                                            if (addrt == 8)
+                                            {
+                                                words = new string[8];
+                                                string line1 = (addr + 0).ToString("X4").PadLeft(8, '0') + " " + (number[0] & 0xffff).ToString("X4");
+                                                string line2 = (addr + 2).ToString("X4").PadLeft(8, '0') + " " + ((number[0] & 0xffff0000) >> 16).ToString("X4");
+                                                words[0] = "00000000";
+                                                words[1] = line1.Substring(0, 8);
+                                                words[2] = line1.Substring(9, 4).PadLeft(8, '0');
+                                                words[3] = "00000000";
+                                                words[4] = "00000000";
+                                                words[5] = line2.Substring(0, 8);
+                                                words[6] = line2.Substring(9, 4).PadLeft(8, '0');
+                                                words[7] = "00000000";
+                                            }
+                                            else
+                                            {
+                                                words = new string[2];
+                                                words[0] = lines.Substring(0, 8);
+                                                words[1] = lines.Substring(9, 8);
+                                            }
+
+                                            List<string> res = ar34.Encrypt(lines, words, addrt);
+                                            foreach (string st in res)
+                                                sb2.AppendLine(st);
+                                        }
                                     }
                                 }
                                 else if (comboBox1.Text == "PSP")
@@ -148,13 +180,8 @@ namespace PS1AsmToGameshark
                             sb.AppendLine("//CWCheat version");
                         }
 
-                        if (comboBox1.Text == "GBA")
-                        {
-                            sb.AppendLine("");
-                            sb.AppendLine("//Action Replay Unencrypted");
-                        }
-
-                        textGS.Text = sb.ToString();
+                        if (comboBox1.Text != "GBA")
+                            textGS.Text = sb.ToString();
 
                         if (comboBox1.Text == "PSP" || comboBox1.Text == "PS2" || comboBox1.Text == "GBA")
                             textGS.Text += sb2.ToString();
@@ -292,7 +319,12 @@ namespace PS1AsmToGameshark
 
                 if (comboBox1.Text == "GBA")
                 {
-                    List<string> res = ar.Encrypt(s);
+                    string[] words = new string[4];
+                    words[0] = "00000000";
+                    words[1] = textPS2.Text.Substring(0, 8);
+                    words[2] = textPS2.Text.Substring(9, 4).PadLeft(8, '0');
+                    words[3] = "00000000";
+                    List<string> res = ar.Encrypt(s, words, 8);
                     foreach (string st in res)
                         textPnach.Text += st + Environment.NewLine;
                 }

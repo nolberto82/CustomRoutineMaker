@@ -8,7 +8,7 @@ namespace PS1AsmToGameshark
 {
     public class AR34
     {
-        private int[] deadtable1 =
+        private byte[] deadtable1 =
         {
            0xD0, 0xFF, 0xBA, 0xE5, 0xC1, 0xC7, 0xDB, 0x5B, 0x16, 0xE3, 0x6E, 0x26, 0x62, 0x31, 0x2E, 0x2A,
            0xD1, 0xBB, 0x4A, 0xE6, 0xAE, 0x2F, 0x0A, 0x90, 0x29, 0x90, 0xB6, 0x67, 0x58, 0x2A, 0xB4, 0x45,
@@ -28,7 +28,7 @@ namespace PS1AsmToGameshark
            0x3E, 0xAC, 0xD3, 0x3D, 0xCE, 0x60, 0xCA, 0x5D, 0xA0, 0x92, 0x78, 0xC6, 0x51, 0xFE, 0xF9, 0x30
         };
 
-        private int[] deadtable2 =
+        private byte[] deadtable2 =
         {
             0xAA, 0xAF, 0xF0, 0x72, 0x90, 0xF7, 0x71, 0x27, 0x06, 0x11, 0xEB, 0x9C, 0x37, 0x12, 0x72, 0xAA,
             0x65, 0xBC, 0x0D, 0x4A, 0x76, 0xF6, 0x5C, 0xAA, 0xB0, 0x7A, 0x7D, 0x81, 0xC1, 0xCE, 0x2F, 0x9F,
@@ -48,38 +48,33 @@ namespace PS1AsmToGameshark
             0xFC, 0x31, 0x09, 0x48, 0xA3, 0xFF, 0x92, 0x12, 0x58, 0xE9, 0xFA, 0xAE, 0x4F, 0xE2, 0xB4, 0xCC
         };
 
-        //private Dictionary<ARTypes> codetypes;
 
-        public List<string> Encrypt(string line)
+        public List<string> Encrypt(string lines, string[] words, int codetype)
         {
             List<string> encode = new List<string>();
             ulong tmp1, tmp2, tmp3;
+            ulong upper;
+            ulong lower;
 
             ulong[] seeds = GetDeadFace(0);
 
-            string[] words = new string[4];
-            words[0] = "00000000";              
-            words[1] = line.Substring(0, 8); 
-            words[2] = line.Substring(9, 4).PadLeft(8, '0');
-            words[3] = "00000000";
-
-            for (int i = 0; i < 4; i += 2)
+            for (int i = 0; i < words.Length; i += 2)
             {
-                ulong upper = Convert.ToUInt64(words[i].Substring(0, 8), 16);
-                ulong lower = Convert.ToUInt64(words[i + 1], 16);//Convert.ToUInt64(words[i].Substring(8, 8), 16);
+                upper = Convert.ToUInt64(words[i], 16);
+                lower = Convert.ToUInt64(words[i + 1], 16);
 
-                if (upper > 0)
+                if (codetype == 8)
                 {
-                    upper |= 1 << 27;
+                    if ((i % 4) == 0)
+                        lower = 0x18000000 | (lower & 0xffffff) >> 1;
+                }
+                else
+                {
+                    ulong addr = (upper & 0xf000000) >> 4;
+                    upper = (upper >> 4) & 0x700000 | (upper & 0xbffff) | 2 << 25;
                 }
 
-                if (lower > 0)
-                {
-                    //lower |= 1 << 28;
-                    lower = (lower >> 4) & 0x700000 | (lower & 0xfffff) >> 1;
-                    lower |= 1 << 28;
-                    //lower |= 1 << 27;
-                }
+
 
                 ulong rollingseed = 0;
 
@@ -111,19 +106,17 @@ namespace PS1AsmToGameshark
             ulong[] seeds = new ulong[4];
 
             for (ulong i = 0; i < 4; i++)
-                seeds[i] = GenerateNewSeed((value & 0xff00) >> 8, (byte)(value + i));
+                seeds[i] = (ulong)GenerateNewSeed((value & 0xff00) >> 8, ((value & 0xff) + i));
 
             return seeds;
         }
 
-        private ulong GenerateNewSeed(ulong upper, ulong seed)
+        private int GenerateNewSeed(ulong upper, ulong seed)
         {
-            ulong newseed = 0;
+            int newseed = 0;
             for (ulong i = 0; i < 4; i++)
             {
-
-                newseed <<= 8;
-                newseed = newseed + (byte)deadtable1[i + upper] + (byte)(deadtable2[seed]);
+                newseed = (newseed << 8) | ((deadtable1[(i + upper) & 0xff] + deadtable2[seed]) & 0xff);
             }
 
             return newseed;
