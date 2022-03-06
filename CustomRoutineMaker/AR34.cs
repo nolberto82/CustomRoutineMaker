@@ -49,7 +49,7 @@ namespace CustomRoutineMaker
         };
 
 
-        public List<string> Encrypt(string lines, string[] words, int codetype)
+        public List<string> Encrypt(string lines, string[] words, int codetype, ref int id)
         {
             List<string> encode = new List<string>();
             ulong tmp1, tmp2, tmp3;
@@ -60,21 +60,22 @@ namespace CustomRoutineMaker
 
             for (int i = 0; i < words.Length; i += 2)
             {
-                upper = Convert.ToUInt64(words[i], 16);
-                lower = Convert.ToUInt64(words[i + 1], 16);
+                upper = Convert.ToUInt64(words[i].Replace(" ", ""), 16);
+                lower = Convert.ToUInt64(words[i + 1].Replace(" ", ""), 16);
 
                 if (codetype == 8)
                 {
-                    if ((i % 4) == 0)
-                        lower = 0x18000000 | (lower & 0xffffff) >> 1;
+                    if (words[i + 1].StartsWith("08"))
+                    {
+                        lower = (ulong)(0x10000000 + (id * 2)) << 24 | (lower & 0xffffff) >> 1;
+                        id++;
+                    }
                 }
                 else
                 {
                     ulong addr = (upper & 0xf000000) >> 4;
                     upper = (upper >> 4) & 0x700000 | (upper & 0xbffff) | 2 << 25;
                 }
-
-
 
                 ulong rollingseed = 0;
 

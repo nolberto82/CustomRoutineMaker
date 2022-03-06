@@ -10,12 +10,13 @@ namespace CustomRoutineMaker
     public partial class Form1 : Form
     {
         string asm_filename;
+        string addrtext;
         AR34 ar34;
+
+        string[] systems_ext = { ".psx", ".ps2", ".psp", ".gba" };
         public Form1()
         {
             InitializeComponent();
-
-            UpdateButtonState();
 
             UpdateStatusBar();
 
@@ -23,20 +24,12 @@ namespace CustomRoutineMaker
 
             btnAsm.Enabled = false;
             comboBox1.SelectedIndex = 0;
-            textAddress.CharacterCasing = CharacterCasing.Upper;
+            comboBox2.SelectedIndex = 0;
+            textAsm.CharacterCasing = CharacterCasing.Lower;
+            textPS2.CharacterCasing = CharacterCasing.Upper;
+            textPnach.CharacterCasing = CharacterCasing.Upper;
         }
 
-        private void UpdateButtonState()
-        {
-            if (textAddress.Text.Length == 0)
-            {
-                btnNew.Enabled = false;
-            }
-            else
-            {
-                btnNew.Enabled = true;
-            }
-        }
         private void btnOpen_Click(object sender, EventArgs e)
         {
             OpenFileDialog ofd = new OpenFileDialog();
@@ -47,8 +40,28 @@ namespace CustomRoutineMaker
             {
                 asm_filename = ofd.FileName;
                 textAsm.Text = File.ReadAllText(ofd.FileName);
-                int index = textAsm.Text.IndexOf("out.bin") + 12;
-                textAddress.Text = textAsm.Text.Substring(index, 8);
+                string fileout = "out.bin";
+                int index = -1;
+                if (textAsm.Text.Contains(fileout))
+                {
+                    index = textAsm.Text.IndexOf(fileout);
+
+                    while (textAsm.Text[index] != 'x')
+                        index++;
+
+                    addrtext = textAsm.Text.Substring(index + 1, 8);
+                }
+                else
+                    return;
+
+                foreach (string s in systems_ext)
+                {
+                    if (textAsm.Text.Contains(s))
+                    {
+                        index = textAsm.Text.IndexOf(s) + 1;
+                        comboBox1.SelectedItem = s.Substring(index, 3).ToUpper();
+                    }
+                }
             }
         }
 
@@ -75,7 +88,6 @@ namespace CustomRoutineMaker
 
         private void textAsm_TextChanged(object sender, EventArgs e)
         {
-            UpdateButtonState();
             UpdateStatusBar();
         }
 
@@ -104,7 +116,8 @@ namespace CustomRoutineMaker
                         StringBuilder sb = new StringBuilder();
                         StringBuilder sb2 = new StringBuilder();
                         byte[] temp = File.ReadAllBytes("out.bin");
-                        uint addr = Convert.ToUInt32(textAddress.Text, 16);
+                        uint addr = Convert.ToUInt32(addrtext, 16);
+                        int id = 0xc;
 
                         for (int i = 0; i < temp.Length / 4; i++)
                         {
@@ -146,7 +159,7 @@ namespace CustomRoutineMaker
                                                 words[1] = lines.Substring(9, 8);
                                             }
 
-                                            List<string> res = ar34.Encrypt(lines, words, addrt);
+                                            List<string> res = ar34.Encrypt(lines, words, addrt, ref id);
                                             foreach (string st in res)
                                                 sb2.AppendLine(st);
                                         }
@@ -210,6 +223,10 @@ namespace CustomRoutineMaker
         private void btnNew_Click(object sender, EventArgs e)
         {
             StringBuilder sb = new StringBuilder();
+            uint addr = 0x00000000;
+            uint routine = 0x00000000;
+
+            addrtext = addr.ToString("X1");
 
             switch (comboBox1.Text)
             {
@@ -218,34 +235,37 @@ namespace CustomRoutineMaker
                     break;
                 case "PS2":
                     sb.AppendLine(".ps2");
+                    routine = 0x200a0000;
                     break;
                 case "PSP":
                     sb.AppendLine(".psp");
+                    routine = 0x08801000;
                     break;
                 case "GBA":
                     sb.AppendLine(".gba");
                     sb.AppendLine(".thumb");
+                    routine = 0x08000000;
                     break;
             }
 
-            sb.AppendLine(@".create ""out.bin"", 0x" + textAddress.Text);
-
+            sb.AppendLine(@".create ""out.bin"", 0x" + addrtext);
+             
             sb.AppendLine("\n");
 
-            sb.AppendLine(@".org" + "\t" + "0x");
+            sb.AppendLine(@".org" + "\t" + "0x" + routine.ToString("X1").PadLeft(8, '0'));
 
             if (comboBox1.Text == "GBA")
             {
-                sb.AppendLine(@"ldr" + "\t" + "r0,=0x" + textAddress.Text);
+                sb.AppendLine(@"ldr" + "\t" + "r0,=0x" + addrtext);
                 sb.AppendLine(@"mov" + "\t" + "pc,r0");
                 sb.AppendLine(@".pool");
             }
             else
-                sb.AppendLine(@"j" + "\t" + "0x" + textAddress.Text);
+                sb.AppendLine(@"j" + "\t" + "0x" + addrtext);
 
             sb.AppendLine("\n");
 
-            sb.AppendLine(@".org" + "\t" + "0x" + textAddress.Text);
+            sb.AppendLine(@".org" + "\t" + "0x" + addrtext);
 
             sb.AppendLine("\n");
             sb.AppendLine("\n");
@@ -254,7 +274,10 @@ namespace CustomRoutineMaker
             if (comboBox1.Text == "GBA")
                 sb.AppendLine(@"mov" + "\t" + "pc,r7");
             else
-                sb.AppendLine(@"j" + "\t" + "0x");
+                sb.AppendLine(@"j" + "\t" + "0x" + (routine + 8).ToString("X1").PadLeft(8, '0'));
+
+            if (comboBox1.Text == "GBA")
+                sb.AppendLine(@".pool");
 
             sb.AppendLine(".close");
             textAsm.Text = sb.ToString();
@@ -270,40 +293,10 @@ namespace CustomRoutineMaker
             }
         }
 
-        //private void textAddress_TextChanged(object sender, EventArgs e)
-        //{
-        //    if (textAddress.Text.Length == 8)
-        //    {
-        //        switch (textAddress.Text.Substring(0, 3))
-        //        {
-        //            case "80":
-        //                comboBox1.Text = "PS1";
-        //                break;
-        //            case "20":
-        //                comboBox1.Text = "PS2";
-        //                break;
-        //            case "088":
-        //                comboBox1.Text = "PSP";
-        //                break;
-        //            case "08":
-        //                comboBox1.Text = "GBA";
-        //                break;
-        //        }
-        //    }
-
-        //    UpdateButtonState();
-        //}
-
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
         private void btnConvert_Click(object sender, EventArgs e)
         {
-            AR34 ar = new AR34();
             string[] lines = textPS2.Lines;
-
+            int id = 0xc;
             textPnach.Text = "";
 
             foreach (string s in lines)
@@ -317,14 +310,15 @@ namespace CustomRoutineMaker
                     break;
                 }
 
-                if (comboBox1.Text == "GBA")
+                if (comboBox2.Text == "GBA")
                 {
                     string[] words = new string[4];
                     words[0] = "00000000";
-                    words[1] = textPS2.Text.Substring(0, 8);
-                    words[2] = textPS2.Text.Substring(9, 4).PadLeft(8, '0');
+                    words[1] = s.Substring(0, 8);
+                    words[2] = s.Substring(9, 4).PadLeft(8, '0');
                     words[3] = "00000000";
-                    List<string> res = ar.Encrypt(s, words, 8);
+
+                    List<string> res = ar34.Encrypt(s, words, 8, ref id);
                     foreach (string st in res)
                         textPnach.Text += st + Environment.NewLine;
                 }
@@ -334,11 +328,6 @@ namespace CustomRoutineMaker
                 }
 
             }
-        }
-
-        private void textAddress_TextChanged(object sender, EventArgs e)
-        {
-            UpdateButtonState();
         }
     }
 }
