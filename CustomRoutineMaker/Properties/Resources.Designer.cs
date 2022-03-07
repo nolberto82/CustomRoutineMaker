@@ -9,7 +9,7 @@
 //------------------------------------------------------------------------------
 
 namespace CustomRoutineMaker.Properties {
-    using System;
+    using global::System;
     
     
     /// <summary>

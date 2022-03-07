@@ -13,7 +13,7 @@ namespace CustomRoutineMaker
         string addrtext;
         AR34 ar34;
 
-        string[] systems_ext = { ".psx", ".ps2", ".psp", ".gba" };
+        List<SystemType> systems;
         public Form1()
         {
             InitializeComponent();
@@ -21,13 +21,24 @@ namespace CustomRoutineMaker
             UpdateStatusBar();
 
             ar34 = new AR34();
+            systems = new List<SystemType>();
+            systems.Add(new SystemType("Playstation", "psx", 0x80007600, 0x80000000));
+            systems.Add(new SystemType("Playstation 2", "ps2", 0x200a0000, 0x20000000));
+            systems.Add(new SystemType("Playstation Portable", "psp", 0x08801000, 0x08800000));
+            systems.Add(new SystemType("Gameboy Advance", "gba", 0x0203ff00, 0x08000000));
+
+            foreach (SystemType s in systems)
+            {
+                comboBox1.Items.Add(s.name);
+                if (s.shortname == "gba" || s.shortname == "ps2")
+                    comboBox2.Items.Add(s.name);
+            }
 
             btnAsm.Enabled = false;
             comboBox1.SelectedIndex = 0;
-            comboBox2.SelectedIndex = 0;
+            comboBox2.SelectedIndex = 1;
             textAsm.CharacterCasing = CharacterCasing.Lower;
             textPS2.CharacterCasing = CharacterCasing.Upper;
-            textPnach.CharacterCasing = CharacterCasing.Upper;
         }
 
         private void btnOpen_Click(object sender, EventArgs e)
@@ -54,12 +65,12 @@ namespace CustomRoutineMaker
                 else
                     return;
 
-                foreach (string s in systems_ext)
+                foreach (SystemType s in systems)
                 {
-                    if (textAsm.Text.Contains(s))
+                    if (textAsm.Text.Contains(s.shortname))
                     {
-                        index = textAsm.Text.IndexOf(s) + 1;
-                        comboBox1.SelectedItem = s.Substring(index, 3).ToUpper();
+                        index = textAsm.Text.IndexOf(s.shortname) + 1;
+                        comboBox1.SelectedItem = s.name;
                     }
                 }
             }
@@ -115,59 +126,24 @@ namespace CustomRoutineMaker
                     {
                         StringBuilder sb = new StringBuilder();
                         StringBuilder sb2 = new StringBuilder();
-                        byte[] temp = File.ReadAllBytes("out.bin");
-                        uint addr = Convert.ToUInt32(addrtext, 16);
-                        int id = 0xc;
+                        byte[] data = File.ReadAllBytes("out.bin");
+                        string system = systems[comboBox1.SelectedIndex].shortname;
+                        uint addr = systems[comboBox1.SelectedIndex].origaddr;
 
-                        for (int i = 0; i < temp.Length / 4; i++)
+                        for (int i = 0; i < data.Length / 4; i++)
                         {
                             int[] number = new int[1];
-                            Buffer.BlockCopy(temp, i * 4, number, 0, 4);
+                            Buffer.BlockCopy(data, i * 4, number, 0, 4);
                             if (number[0] != 0)
                             {
-                                if (comboBox1.Text == "PS1" || comboBox1.Text == "GBA")
+                                if (system == "psx")
                                 {
                                     sb.AppendLine((addr + 0).ToString("X4").PadLeft(8, '0') + " " + (number[0] & 0xffff).ToString("X4"));
                                     sb.AppendLine((addr + 2).ToString("X4").PadLeft(8, '0') + " " + ((number[0] & 0xffff0000) >> 16).ToString("X4"));
-
-                                    if (comboBox1.Text == "GBA")
-                                    {
-                                        string lines = (addr + 0).ToString("X4").PadLeft(8, '0') + " " + (number[0]).ToString("X8");
-                                        if (lines != "")
-                                        {
-                                            int addrt = Convert.ToInt32(lines.Substring(0, 8), 16) >> 24;
-                                            string[] words;
-
-                                            if (addrt == 8)
-                                            {
-                                                words = new string[8];
-                                                string line1 = (addr + 0).ToString("X4").PadLeft(8, '0') + " " + (number[0] & 0xffff).ToString("X4");
-                                                string line2 = (addr + 2).ToString("X4").PadLeft(8, '0') + " " + ((number[0] & 0xffff0000) >> 16).ToString("X4");
-                                                words[0] = "00000000";
-                                                words[1] = line1.Substring(0, 8);
-                                                words[2] = line1.Substring(9, 4).PadLeft(8, '0');
-                                                words[3] = "00000000";
-                                                words[4] = "00000000";
-                                                words[5] = line2.Substring(0, 8);
-                                                words[6] = line2.Substring(9, 4).PadLeft(8, '0');
-                                                words[7] = "00000000";
-                                            }
-                                            else
-                                            {
-                                                words = new string[2];
-                                                words[0] = lines.Substring(0, 8);
-                                                words[1] = lines.Substring(9, 8);
-                                            }
-
-                                            List<string> res = ar34.Encrypt(lines, words, addrt, ref id);
-                                            foreach (string st in res)
-                                                sb2.AppendLine(st);
-                                        }
-                                    }
                                 }
-                                else if (comboBox1.Text == "PSP")
+                                else if (system == "psp")
                                 {
-                                    string convertedstr = (addr + 0).ToString("X4").Replace("88", "0x200");
+                                    string convertedstr = "0x" + ((addr & 0xfffff) + 0x20000000).ToString("X8");
                                     sb.AppendLine(convertedstr + " 0x" + (number[0]).ToString("X8"));
                                     sb2.AppendLine("_L " + convertedstr + " 0x" + (number[0]).ToString("X8"));
                                 }
@@ -181,22 +157,25 @@ namespace CustomRoutineMaker
                             addr += 4;
                         }
 
-                        if (comboBox1.Text == "PS2")
+                        if (system == "gba")
+                            sb2 = CreateGBACodes(data);
+
+                        if (system == "ps2")
                         {
                             sb.AppendLine("");
                             sb.AppendLine("//PCSX2 pnatch");
                         }
 
-                        if (comboBox1.Text == "PSP")
+                        if (system == "psp")
                         {
                             sb.AppendLine("");
                             sb.AppendLine("//CWCheat version");
                         }
 
-                        if (comboBox1.Text != "GBA")
+                        if (system != "gba")
                             textGS.Text = sb.ToString();
 
-                        if (comboBox1.Text == "PSP" || comboBox1.Text == "PS2" || comboBox1.Text == "GBA")
+                        if (system == "psp" || system == "ps2" || system == "gba")
                             textGS.Text += sb2.ToString();
 
                     }
@@ -206,6 +185,55 @@ namespace CustomRoutineMaker
             {
                 MessageBox.Show("No ASM File loaded", "Error");
             }
+        }
+
+        private StringBuilder CreateGBACodes(byte[] data)
+        {
+            uint addr = systems[comboBox1.SelectedIndex].origaddr;
+            StringBuilder sb = new StringBuilder();
+            int id = 0xc;
+
+            for (int i = 0; i < data.Length / 4; i++)
+            {
+                int[] number = new int[1];
+                Buffer.BlockCopy(data, i * 4, number, 0, 4);
+                if (number[0] != 0)
+                {
+                    string lines = (addr + 0).ToString("X4").PadLeft(8, '0') + " " + (number[0]).ToString("X8");
+                    if (lines != "")
+                    {
+                        int addrt = Convert.ToInt32(lines.Substring(0, 8), 16) >> 24;
+                        string[] words;
+
+                        if (addrt == 8)
+                        {
+                            words = new string[8];
+                            string line1 = (addr + 0).ToString("X4").PadLeft(8, '0') + " " + (number[0] & 0xffff).ToString("X4");
+                            string line2 = (addr + 2).ToString("X4").PadLeft(8, '0') + " " + ((number[0] & 0xffff0000) >> 16).ToString("X4");
+                            words[0] = "00000000";
+                            words[1] = line1.Substring(0, 8);
+                            words[2] = line1.Substring(9, 4).PadLeft(8, '0');
+                            words[3] = "00000000";
+                            words[4] = "00000000";
+                            words[5] = line2.Substring(0, 8);
+                            words[6] = line2.Substring(9, 4).PadLeft(8, '0');
+                            words[7] = "00000000";
+                        }
+                        else
+                        {
+                            words = new string[2];
+                            words[0] = lines.Substring(0, 8);
+                            words[1] = lines.Substring(9, 8);
+                        }
+
+                        List<string> res = ar34.Encrypt(lines, words, addrt, ref id);
+                        foreach (string st in res)
+                            sb.AppendLine(st);
+                    }
+                }
+                            addr += 4;
+            }
+            return sb;
         }
 
         private void textAsm_Click(object sender, EventArgs e)
@@ -223,60 +251,44 @@ namespace CustomRoutineMaker
         private void btnNew_Click(object sender, EventArgs e)
         {
             StringBuilder sb = new StringBuilder();
-            uint addr = 0x00000000;
-            uint routine = 0x00000000;
+            uint addr = systems[comboBox1.SelectedIndex].origaddr & 0xfffff;
+            uint routine = systems[comboBox1.SelectedIndex].routine;
+            string system = systems[comboBox1.SelectedIndex].shortname;
 
-            addrtext = addr.ToString("X1");
+            addrtext = addr.ToString("X8");
+            sb.AppendLine("." + system);
 
-            switch (comboBox1.Text)
-            {
-                case "PS1":
-                    sb.AppendLine(".psx");
-                    break;
-                case "PS2":
-                    sb.AppendLine(".ps2");
-                    routine = 0x200a0000;
-                    break;
-                case "PSP":
-                    sb.AppendLine(".psp");
-                    routine = 0x08801000;
-                    break;
-                case "GBA":
-                    sb.AppendLine(".gba");
-                    sb.AppendLine(".thumb");
-                    routine = 0x08000000;
-                    break;
-            }
+            sb.AppendLine(@".create ""out.bin"", 0x0");
 
-            sb.AppendLine(@".create ""out.bin"", 0x" + addrtext);
-             
             sb.AppendLine("\n");
 
-            sb.AppendLine(@".org" + "\t" + "0x" + routine.ToString("X1").PadLeft(8, '0'));
-
-            if (comboBox1.Text == "GBA")
+            if (system == "gba")
             {
-                sb.AppendLine(@"ldr" + "\t" + "r0,=0x" + addrtext);
-                sb.AppendLine(@"mov" + "\t" + "pc,r0");
+                sb.AppendLine(@".org" + "\t" + "0x" + addrtext.PadLeft(8, '0'));
+                sb.AppendLine(@"ldr" + "\t" + "r0,=0x" + routine.ToString("X8").PadLeft(8, '0'));
+                sb.AppendLine(@"bx" + "\t" + "r0");
                 sb.AppendLine(@".pool");
             }
             else
-                sb.AppendLine(@"j" + "\t" + "0x" + addrtext);
+            {
+                sb.AppendLine(@".org" + "\t" + "0x" + addrtext.PadRight(8, '0'));
+                sb.AppendLine(@"j" + "\t" + "0x" + routine.ToString("X8").PadLeft(8, '0'));
+            }
 
             sb.AppendLine("\n");
 
-            sb.AppendLine(@".org" + "\t" + "0x" + addrtext);
+            sb.AppendLine(@".org" + "\t" + "0x" + routine.ToString("X8").PadLeft(8, '0'));
 
             sb.AppendLine("\n");
             sb.AppendLine("\n");
             sb.AppendLine("\n");
 
-            if (comboBox1.Text == "GBA")
-                sb.AppendLine(@"mov" + "\t" + "pc,r7");
+            if (systems[comboBox1.SelectedIndex].shortname == "gba")
+                sb.AppendLine(@"bx" + "\t" + "r0");
             else
-                sb.AppendLine(@"j" + "\t" + "0x" + (routine + 8).ToString("X1").PadLeft(8, '0'));
+                sb.AppendLine(@"j" + "\t" + "0x" + (routine + 8).ToString("X8").PadLeft(8, '0'));
 
-            if (comboBox1.Text == "GBA")
+            if (system == "gba")
                 sb.AppendLine(@".pool");
 
             sb.AppendLine(".close");
@@ -295,6 +307,7 @@ namespace CustomRoutineMaker
 
         private void btnConvert_Click(object sender, EventArgs e)
         {
+            string system = systems.Find(s => s.name == (string)comboBox2.SelectedItem).shortname;
             string[] lines = textPS2.Lines;
             int id = 0xc;
             textPnach.Text = "";
@@ -303,14 +316,9 @@ namespace CustomRoutineMaker
             {
                 if (s == "" || s == null)
                     continue;
-                string[] split = s.Split(' ');
-                if (split.Length == 1)
-                {
-                    textPnach.Text += $"patch=1,EE,{split[0]:X4},extended, value missing";
-                    break;
-                }
+                //string[] split = s.Split(' ');
 
-                if (comboBox2.Text == "GBA")
+                if (system == "gba")
                 {
                     string[] words = new string[4];
                     words[0] = "00000000";
@@ -324,7 +332,10 @@ namespace CustomRoutineMaker
                 }
                 else
                 {
-                    textPnach.Text += $"patch=1,EE,{split[0]:X4},extended,{split[1]:X8}\n";
+                    string ns = s;
+                    if (s.Length <16)
+                        ns = ns.PadRight(17, '0').Replace(" ", "");
+                    textPnach.Text += $"patch=1,EE,{ns.Substring(0,8):X4},extended,{ns.Substring(8, 8):X8}\n";
                 }
 
             }
