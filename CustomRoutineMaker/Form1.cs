@@ -159,27 +159,27 @@ namespace CustomRoutineMaker
 
                         if (system == "gba")
                             sb2 = CreateGBACodes(data);
-
-                        if (system == "ps2")
+                        else if (system == "ps2")
                         {
                             sb.AppendLine("");
                             sb.AppendLine("//PCSX2 pnatch");
                         }
-
-                        if (system == "psp")
+                        else if (system == "psp")
                         {
                             sb.AppendLine("");
                             sb.AppendLine("//CWCheat version");
                         }
-
                         if (system != "gba")
                             textGS.Text = sb.ToString();
-
                         if (system == "psp" || system == "ps2" || system == "gba")
                             textGS.Text += sb2.ToString();
 
+
+
                     }
                 }
+                if (File.Exists("out.bin"))
+                    File.Delete("out.bin");
             }
             else
             {
@@ -189,7 +189,7 @@ namespace CustomRoutineMaker
 
         private StringBuilder CreateGBACodes(byte[] data)
         {
-            uint addr = systems[comboBox1.SelectedIndex].origaddr;
+            uint addr = 0;//= systems[comboBox1.SelectedIndex].origaddr;
             StringBuilder sb = new StringBuilder();
             int id = 0xc;
 
@@ -231,7 +231,7 @@ namespace CustomRoutineMaker
                             sb.AppendLine(st);
                     }
                 }
-                            addr += 4;
+                addr += 4;
             }
             return sb;
         }
@@ -333,9 +333,9 @@ namespace CustomRoutineMaker
                 else
                 {
                     string ns = s;
-                    if (s.Length <16)
+                    if (s.Length < 16)
                         ns = ns.PadRight(17, '0').Replace(" ", "");
-                    textPnach.Text += $"patch=1,EE,{ns.Substring(0,8):X4},extended,{ns.Substring(8, 8):X8}\n";
+                    textPnach.Text += $"patch=1,EE,{ns.Substring(0, 8):X4},extended,{ns.Substring(8, 8):X8}\n";
                 }
 
             }
