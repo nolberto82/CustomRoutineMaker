@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -25,7 +26,10 @@ namespace CustomRoutineMaker
             systems.Add(new SystemType("Playstation", "psx", 0x80007600, 0x80000000));
             systems.Add(new SystemType("Playstation 2", "ps2", 0x200a0000, 0x20000000));
             systems.Add(new SystemType("Playstation Portable", "psp", 0x08801000, 0x08800000));
+            systems.Add(new SystemType("Nintendo 64", "n64", 0x80400000, 0x80000000));
             systems.Add(new SystemType("Gameboy Advance", "gba", 0x0203ff00, 0x08000000));
+            systems.Add(new SystemType("Nintendo DS", "nds", 0x02000000, 0x02000000));
+            systems.Add(new SystemType("Generic", "nds", 0x00000000, 0x00000000));
 
             foreach (SystemType s in systems)
             {
@@ -53,6 +57,24 @@ namespace CustomRoutineMaker
                 textAsm.Text = File.ReadAllText(ofd.FileName);
                 string fileout = "out.bin";
                 int index = -1;
+
+                //if (system == "psx")
+                //{
+                //    string[] lines = textAsm.Text.Split(Environment.NewLine.ToCharArray());
+
+                //    foreach (string l in lines)
+                //    {
+                //        if (l.Contains(".org"))
+                //        {
+                //            int ind = l.LastIndexOf(".org");
+                //            string[] org = l.Split('\t');
+                //            if (org.Length > 1)
+                //                addr = Convert.ToUInt32(org[1], 16) & 0xffffff;
+                //            break;
+                //        }
+                //    }
+                //}
+
                 if (textAsm.Text.Contains(fileout))
                 {
                     index = textAsm.Text.IndexOf(fileout);
@@ -128,7 +150,9 @@ namespace CustomRoutineMaker
                         StringBuilder sb2 = new StringBuilder();
                         byte[] data = File.ReadAllBytes("out.bin");
                         string system = systems[comboBox1.SelectedIndex].shortname;
+                        string name = systems[comboBox1.SelectedIndex].name;
                         uint addr = systems[comboBox1.SelectedIndex].origaddr;
+                        uint offset = 0;
 
                         for (int i = 0; i < data.Length / 4; i++)
                         {
@@ -141,11 +165,27 @@ namespace CustomRoutineMaker
                                     sb.AppendLine((addr + 0).ToString("X4").PadLeft(8, '0') + " " + (number[0] & 0xffff).ToString("X4"));
                                     sb.AppendLine((addr + 2).ToString("X4").PadLeft(8, '0') + " " + ((number[0] & 0xffff0000) >> 16).ToString("X4"));
                                 }
+                                if (system == "n64")
+                                {
+                                    number[0] = BinaryPrimitives.ReverseEndianness(number[0]);
+                                    sb.AppendLine((addr + 0 + 0x01000000).ToString("X4").PadLeft(8, '0') + " " + ((number[0] & 0xffff0000) >> 16).ToString("X4"));
+                                    sb.AppendLine((addr + 2 + 0x01000000).ToString("X4").PadLeft(8, '0') + " " + (number[0] & 0xffff).ToString("X4"));
+                                }
                                 else if (system == "psp")
                                 {
-                                    string convertedstr = "0x" + ((addr & 0xfffff) + 0x20000000).ToString("X8");
+                                    string convertedstr = "0x" + ((addr - 0x8800000) + 0x20000000).ToString("X8");
                                     sb.AppendLine(convertedstr + " 0x" + (number[0]).ToString("X8"));
                                     sb2.AppendLine("_L " + convertedstr + " 0x" + (number[0]).ToString("X8"));
+                                }
+                                else if (system == "nds")
+                                {
+                                    string convertedstr = (addr).ToString("X8");
+                                    sb.AppendLine(convertedstr + " " + (number[0]).ToString("X8"));
+                                }
+                                else if (name == "Generic")
+                                {
+                                    //string convertedstr = "04000000 " + ((addr & 0xffffff)).ToString("X8");
+                                    //sb.AppendLine(convertedstr + " " + (number[0]).ToString("X8"));
                                 }
                                 else
                                 {
@@ -157,25 +197,29 @@ namespace CustomRoutineMaker
                             addr += 4;
                         }
 
-                        if (system == "gba")
-                            sb2 = CreateGBACodes(data);
-                        else if (system == "ps2")
+                        if (name == "Generic")
                         {
-                            sb.AppendLine("");
-                            sb.AppendLine("//PCSX2 pnatch");
-                        }
-                        else if (system == "psp")
-                        {
-                            sb.AppendLine("");
-                            sb.AppendLine("//CWCheat version");
-                        }
-                        if (system != "gba")
                             textGS.Text = sb.ToString();
-                        if (system == "psp" || system == "ps2" || system == "gba")
-                            textGS.Text += sb2.ToString();
-
-
-
+                        }
+                        else
+                        {
+                            if (system == "gba")
+                                sb2 = CreateGBACodes(data);
+                            else if (system == "ps2")
+                            {
+                                sb.AppendLine("");
+                                sb.AppendLine("//PCSX2 pnatch");
+                            }
+                            else if (system == "psp")
+                            {
+                                sb.AppendLine("");
+                                sb.AppendLine("//CWCheat version");
+                            }
+                            if (system != "gba")
+                                textGS.Text = sb.ToString();
+                            if (system == "psp" || system == "ps2" || system == "gba")
+                                textGS.Text += sb2.ToString();
+                        }
                     }
                 }
                 if (File.Exists("out.bin"))
@@ -251,14 +295,14 @@ namespace CustomRoutineMaker
         private void btnNew_Click(object sender, EventArgs e)
         {
             StringBuilder sb = new StringBuilder();
-            uint addr = systems[comboBox1.SelectedIndex].origaddr & 0xfffff;
+            uint addr = systems[comboBox1.SelectedIndex].origaddr;
             uint routine = systems[comboBox1.SelectedIndex].routine;
             string system = systems[comboBox1.SelectedIndex].shortname;
 
             addrtext = addr.ToString("X8");
             sb.AppendLine("." + system);
 
-            sb.AppendLine(@".create ""out.bin"", 0x0");
+            sb.AppendLine(@".create ""out.bin"", 0x" + addr.ToString("X8").PadLeft(8, '0'));
 
             sb.AppendLine("\n");
 
@@ -268,6 +312,12 @@ namespace CustomRoutineMaker
                 sb.AppendLine(@"ldr" + "\t" + "r0,=0x" + routine.ToString("X8").PadLeft(8, '0'));
                 sb.AppendLine(@"bx" + "\t" + "r0");
                 sb.AppendLine(@".pool");
+            }
+            else if (system == "nds")
+            {
+                sb.AppendLine(@".org" + "\t" + "0x" + addr.ToString("X8").PadLeft(8, '0'));
+                sb.AppendLine(@"bl" + "\t" + "0x" + routine.ToString("X8").PadLeft(8, '0'));
+                //sb.AppendLine(@".pool");
             }
             else
             {
@@ -283,12 +333,14 @@ namespace CustomRoutineMaker
             sb.AppendLine("\n");
             sb.AppendLine("\n");
 
-            if (systems[comboBox1.SelectedIndex].shortname == "gba")
+            if (system == "gba")
                 sb.AppendLine(@"bx" + "\t" + "r0");
+            else if (system == "nds")
+                sb.AppendLine(@"bx" + "\t" + "r14");
             else
                 sb.AppendLine(@"j" + "\t" + "0x" + (routine + 8).ToString("X8").PadLeft(8, '0'));
 
-            if (system == "gba")
+            if (system == "gba" || system == "nds")
                 sb.AppendLine(@".pool");
 
             sb.AppendLine(".close");
@@ -333,9 +385,9 @@ namespace CustomRoutineMaker
                 else
                 {
                     string ns = s;
-                    if (s.Length < 16)
+                    if (s.Length <= 16)
                         ns = ns.PadRight(17, '0').Replace(" ", "");
-                    textPnach.Text += $"patch=1,EE,{ns.Substring(0, 8):X4},extended,{ns.Substring(8, 8):X8}\n";
+                    textPnach.Text += $"patch=1,EE,{ns.Substring(0, 8):X4},extended,{ns.Substring(9, 8):X8}\n";
                 }
 
             }
