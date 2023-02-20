@@ -3,7 +3,10 @@ using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace CustomRoutineMaker
@@ -29,7 +32,7 @@ namespace CustomRoutineMaker
             systems.Add(new SystemType("Nintendo 64", "n64", 0x80400000, 0x80000000));
             systems.Add(new SystemType("Gameboy Advance", "gba", 0x0203ff00, 0x08000000));
             systems.Add(new SystemType("Nintendo DS", "nds", 0x02000000, 0x02000000));
-            systems.Add(new SystemType("Generic", "nds", 0x00000000, 0x00000000));
+            systems.Add(new SystemType("Generic", "gen", 0x00000000, 0x00000000));
 
             foreach (SystemType s in systems)
             {
@@ -152,7 +155,13 @@ namespace CustomRoutineMaker
                         string system = systems[comboBox1.SelectedIndex].shortname;
                         string name = systems[comboBox1.SelectedIndex].name;
                         uint addr = systems[comboBox1.SelectedIndex].origaddr;
-                        uint offset = 0;
+                        bool isThumb = false;
+
+                        if (system == "nds")
+                        {
+                            if (textAsm.Text.Contains(".thumb"))
+                                isThumb = true;
+                        }
 
                         for (int i = 0; i < data.Length / 4; i++)
                         {
@@ -179,8 +188,7 @@ namespace CustomRoutineMaker
                                 }
                                 else if (system == "nds")
                                 {
-                                    string convertedstr = (addr).ToString("X8");
-                                    sb.AppendLine(convertedstr + " " + (number[0]).ToString("X8"));
+                                    sb.Append($"{number[0]:X8} ");
                                 }
                                 else if (name == "Generic")
                                 {
@@ -216,7 +224,42 @@ namespace CustomRoutineMaker
                                 sb.AppendLine("//CWCheat version");
                             }
                             if (system != "gba")
-                                textGS.Text = sb.ToString();
+                            {
+                                if (system == "nds")
+                                {
+                                    string org = "";
+                                    if (textAsm.Text.Contains(".org"))
+                                    {
+                                        int index = textAsm.Text.IndexOf(".org");
+
+                                        while (textAsm.Text[index] != 'x')
+                                            index++;
+
+                                        org = textAsm.Text.Substring(index + 1, 8);
+                                    }
+
+                                    var sarr = sb.ToString().Split(new[] {' '},StringSplitOptions.RemoveEmptyEntries).ToList();
+
+                                    string bl = sarr[sarr.Count - 1];
+                                    sarr.RemoveAt(sarr.Count - 1);
+
+                                    if ((sarr.Count % 2) > 0)
+                                        sarr.Add("00000000");
+
+                                    textGS.Text += $"E2000000 {sarr.Count * 4:X8}\r\n";
+
+                                    for (int i = 0; i < sarr.Count; i += 2)
+                                    {
+                                        textGS.Text += $"{sarr[i]} {sarr[i + 1]}\r\n";
+                                    }
+
+                                    textGS.Text += $"{org.ToUpper()} {bl}\r\n";
+                                    textGS.Text += $"D2000000 00000000";
+                                }
+                                else
+                                    textGS.Text = sb.ToString();
+                            }
+
                             if (system == "psp" || system == "ps2" || system == "gba")
                                 textGS.Text += sb2.ToString();
                         }
