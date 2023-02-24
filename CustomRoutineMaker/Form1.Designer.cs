@@ -29,7 +29,6 @@ namespace CustomRoutineMaker
 		/// </summary>
 		private void InitializeComponent()
 		{
-            this.textGS = new System.Windows.Forms.TextBox();
             this.btnAsm = new System.Windows.Forms.Button();
             this.btnAssemble = new System.Windows.Forms.Button();
             this.btnOpen = new System.Windows.Forms.Button();
@@ -42,18 +41,9 @@ namespace CustomRoutineMaker
             this.textPnach = new System.Windows.Forms.TextBox();
             this.btnConvert = new System.Windows.Forms.Button();
             this.comboBox2 = new System.Windows.Forms.ComboBox();
+            this.textGS = new System.Windows.Forms.TextBox();
             this.statusBar.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // textGS
-            // 
-            this.textGS.Location = new System.Drawing.Point(383, 79);
-            this.textGS.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.textGS.Multiline = true;
-            this.textGS.Name = "textGS";
-            this.textGS.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textGS.Size = new System.Drawing.Size(411, 530);
-            this.textGS.TabIndex = 1;
             // 
             // btnAsm
             // 
@@ -90,12 +80,14 @@ namespace CustomRoutineMaker
             // textAsm
             // 
             this.textAsm.AcceptsTab = true;
+            this.textAsm.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textAsm.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.textAsm.Location = new System.Drawing.Point(11, 79);
             this.textAsm.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.textAsm.Multiline = true;
             this.textAsm.Name = "textAsm";
             this.textAsm.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textAsm.Size = new System.Drawing.Size(366, 530);
+            this.textAsm.Size = new System.Drawing.Size(366, 656);
             this.textAsm.TabIndex = 5;
             this.textAsm.Click += new System.EventHandler(this.textAsm_Click);
             this.textAsm.TextChanged += new System.EventHandler(this.textAsm_TextChanged);
@@ -104,7 +96,7 @@ namespace CustomRoutineMaker
             // 
             this.statusBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.statusAsm});
-            this.statusBar.Location = new System.Drawing.Point(0, 610);
+            this.statusBar.Location = new System.Drawing.Point(0, 739);
             this.statusBar.Name = "statusBar";
             this.statusBar.Padding = new System.Windows.Forms.Padding(2, 0, 18, 0);
             this.statusBar.Size = new System.Drawing.Size(1184, 22);
@@ -139,24 +131,26 @@ namespace CustomRoutineMaker
             // 
             // textPS2
             // 
-            this.textPS2.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textPS2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textPS2.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.textPS2.Location = new System.Drawing.Point(800, 79);
             this.textPS2.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.textPS2.Multiline = true;
             this.textPS2.Name = "textPS2";
             this.textPS2.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textPS2.Size = new System.Drawing.Size(372, 274);
+            this.textPS2.Size = new System.Drawing.Size(372, 320);
             this.textPS2.TabIndex = 11;
             // 
             // textPnach
             // 
-            this.textPnach.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textPnach.Location = new System.Drawing.Point(800, 357);
+            this.textPnach.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textPnach.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.textPnach.Location = new System.Drawing.Point(800, 415);
             this.textPnach.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.textPnach.Multiline = true;
             this.textPnach.Name = "textPnach";
             this.textPnach.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textPnach.Size = new System.Drawing.Size(372, 252);
+            this.textPnach.Size = new System.Drawing.Size(372, 320);
             this.textPnach.TabIndex = 12;
             // 
             // btnConvert
@@ -172,7 +166,7 @@ namespace CustomRoutineMaker
             // 
             // comboBox2
             // 
-            this.comboBox2.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.comboBox2.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.comboBox2.FormattingEnabled = true;
             this.comboBox2.Location = new System.Drawing.Point(800, 11);
             this.comboBox2.Margin = new System.Windows.Forms.Padding(2);
@@ -180,11 +174,26 @@ namespace CustomRoutineMaker
             this.comboBox2.Size = new System.Drawing.Size(372, 26);
             this.comboBox2.TabIndex = 14;
             // 
+            // textGS
+            // 
+            this.textGS.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textGS.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.textGS.Location = new System.Drawing.Point(383, 79);
+            this.textGS.Multiline = true;
+            this.textGS.Name = "textGS";
+            this.textGS.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.textGS.Size = new System.Drawing.Size(411, 656);
+            this.textGS.TabIndex = 15;
+            this.textGS.TabStop = false;
+            this.textGS.MouseDown += new System.Windows.Forms.MouseEventHandler(this.textGS_MouseDown);
+            this.textGS.MouseMove += new System.Windows.Forms.MouseEventHandler(this.textGS_MouseMove);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1184, 632);
+            this.ClientSize = new System.Drawing.Size(1184, 761);
+            this.Controls.Add(this.textGS);
             this.Controls.Add(this.comboBox2);
             this.Controls.Add(this.btnConvert);
             this.Controls.Add(this.textPnach);
@@ -196,13 +205,12 @@ namespace CustomRoutineMaker
             this.Controls.Add(this.btnOpen);
             this.Controls.Add(this.btnAssemble);
             this.Controls.Add(this.btnAsm);
-            this.Controls.Add(this.textGS);
-            this.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.MaximizeBox = false;
             this.Name = "Form1";
-            this.Text = "CustomRoutineMaker";
+            this.Text = "Custom Routine Creator";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.statusBar.ResumeLayout(false);
             this.statusBar.PerformLayout();
@@ -212,7 +220,6 @@ namespace CustomRoutineMaker
 		}
 
 		#endregion
-		private global::System.Windows.Forms.TextBox textGS;
 		private global::System.Windows.Forms.Button btnAsm;
 		private global::System.Windows.Forms.Button btnAssemble;
 		private global::System.Windows.Forms.Button btnOpen;
@@ -225,6 +232,7 @@ namespace CustomRoutineMaker
         private global::System.Windows.Forms.TextBox textPnach;
         private global::System.Windows.Forms.Button btnConvert;
         private global::System.Windows.Forms.ComboBox comboBox2;
+        private System.Windows.Forms.TextBox textGS;
     }
 }
 

@@ -1,5 +1,5 @@
-﻿using System;
-using System.Buffers.Binary;
+﻿using CustomRoutineMaker.Classes;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CustomRoutineMaker
 {
@@ -26,18 +27,18 @@ namespace CustomRoutineMaker
 
             ar34 = new AR34();
             systems = new List<SystemType>();
-            systems.Add(new SystemType("Playstation", "psx", 0x80007600, 0x80000000));
+            systems.Add(new SystemType("Playstation", "ps1", 0x80007600, 0x80000000));
             systems.Add(new SystemType("Playstation 2", "ps2", 0x200a0000, 0x20000000));
-            systems.Add(new SystemType("Playstation Portable", "psp", 0x08801000, 0x08800000));
+            systems.Add(new SystemType("Playstation Portable", "psp", 0x08801000, 0x00000000));
             systems.Add(new SystemType("Nintendo 64", "n64", 0x80400000, 0x80000000));
-            systems.Add(new SystemType("Gameboy Advance", "gba", 0x0203ff00, 0x08000000));
+            systems.Add(new SystemType("Gameboy Advance", "gba", 0x0203ff00, 0x0203ff00));
             systems.Add(new SystemType("Nintendo DS", "nds", 0x02000000, 0x02000000));
             systems.Add(new SystemType("Generic", "gen", 0x00000000, 0x00000000));
 
             foreach (SystemType s in systems)
             {
                 comboBox1.Items.Add(s.name);
-                if (s.shortname == "gba" || s.shortname == "ps2")
+                if (s.shortname == "gba" || s.shortname == "ps2" || s.shortname == "psp")
                     comboBox2.Items.Add(s.name);
             }
 
@@ -45,14 +46,16 @@ namespace CustomRoutineMaker
             comboBox1.SelectedIndex = 0;
             comboBox2.SelectedIndex = 1;
             textAsm.CharacterCasing = CharacterCasing.Lower;
-            textPS2.CharacterCasing = CharacterCasing.Upper;
         }
 
         private void btnOpen_Click(object sender, EventArgs e)
         {
+            if (!Directory.Exists("ASM"))
+                Directory.CreateDirectory("ASM");
+
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.Filter = "ASM Files (*.asm)|*.asm";
-            ofd.InitialDirectory = Environment.CurrentDirectory;
+            ofd.InitialDirectory = Environment.CurrentDirectory + "\\ASM";
 
             if (ofd.ShowDialog() == DialogResult.OK)
             {
@@ -60,23 +63,6 @@ namespace CustomRoutineMaker
                 textAsm.Text = File.ReadAllText(ofd.FileName);
                 string fileout = "out.bin";
                 int index = -1;
-
-                //if (system == "psx")
-                //{
-                //    string[] lines = textAsm.Text.Split(Environment.NewLine.ToCharArray());
-
-                //    foreach (string l in lines)
-                //    {
-                //        if (l.Contains(".org"))
-                //        {
-                //            int ind = l.LastIndexOf(".org");
-                //            string[] org = l.Split('\t');
-                //            if (org.Length > 1)
-                //                addr = Convert.ToUInt32(org[1], 16) & 0xffffff;
-                //            break;
-                //        }
-                //    }
-                //}
 
                 if (textAsm.Text.Contains(fileout))
                 {
@@ -103,9 +89,12 @@ namespace CustomRoutineMaker
 
         private void SaveFile()
         {
+            if (!Directory.Exists("ASM"))
+                Directory.CreateDirectory("ASM");
+
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.Filter = "ASM Files (*.asm)|*.asm";
-            sfd.InitialDirectory = Environment.CurrentDirectory;
+            sfd.InitialDirectory = Environment.CurrentDirectory + "/ASM";
 
             if (asm_filename == "" || asm_filename == null)
             {
@@ -113,7 +102,6 @@ namespace CustomRoutineMaker
                 {
                     asm_filename = sfd.FileName;
                     File.WriteAllText(sfd.FileName, textAsm.Text);
-
                 }
             }
             else
@@ -139,13 +127,12 @@ namespace CustomRoutineMaker
                 app.Arguments = asm_filename;
                 app.UseShellExecute = false;
                 app.RedirectStandardOutput = true;
+                app.CreateNoWindow = true;
 
                 using (Process process = Process.Start(app))
                 {
                     using (StreamReader sr = process.StandardOutput)
-                    {
                         textGS.Text = sr.ReadToEnd();
-                    }
 
                     if (textGS.Text == "")
                     {
@@ -155,55 +142,42 @@ namespace CustomRoutineMaker
                         string system = systems[comboBox1.SelectedIndex].shortname;
                         string name = systems[comboBox1.SelectedIndex].name;
                         uint addr = systems[comboBox1.SelectedIndex].origaddr;
-                        bool isThumb = false;
 
-                        if (system == "nds")
+                        //for (int i = 0; i < data.Length / 4; i++)
+                        //{
+
+                        if (system == "psx")
                         {
-                            if (textAsm.Text.Contains(".thumb"))
-                                isThumb = true;
+                            //sb.Append($"{addr:X8} {number[0] & 0xffff:X4}\r\n");
+                            //sb.Append($"{addr + 2:X8} {number[0] >> 16:X4}\r\n");
+                        }
+                        if (system == "n64")
+                        {
+
+                            //var r = BitConverter.GetBytes(number[0]);
+                            //addr |= 0x01000000;
+                            //sb.Append($"{addr:X8} {r[0]:X2}{r[1]:X2}\r\n");
+                            //sb.Append($"{addr + 2:X8} {r[2]:X2}{r[3]:X2}\r\n");
+                        }
+                        else if (system == "psp")
+                            textGS.Text = string.Join(Environment.NewLine, PSP.Run(data, addr, textAsm.Text));
+                        else if (system == "nds")
+                        {
+                            textGS.Text = string.Join(Environment.NewLine, NDS.Run(data, addr, textAsm.Text));
+                        }
+                        else if (name == "Generic")
+                        {
+                            //string convertedstr = "04000000 " + ((addr & 0xffffff)).ToString("X8");
+                            //sb.AppendLine(convertedstr + " " + (number[0]).ToString("X8"));
+                        }
+                        else if (system == "ps2")
+                        {
+                            //sb2.AppendLine("patch=1,EE," + (addr + 0).ToString("X4") + ",extended," + (number[0]).ToString("X8"));
+                            //sb.AppendLine((addr + 0).ToString("X4") + " " + (number[0]).ToString("X8"));
                         }
 
-                        for (int i = 0; i < data.Length / 4; i++)
-                        {
-                            int[] number = new int[1];
-                            Buffer.BlockCopy(data, i * 4, number, 0, 4);
-                            if (number[0] != 0)
-                            {
-                                if (system == "psx")
-                                {
-                                    sb.AppendLine((addr + 0).ToString("X4").PadLeft(8, '0') + " " + (number[0] & 0xffff).ToString("X4"));
-                                    sb.AppendLine((addr + 2).ToString("X4").PadLeft(8, '0') + " " + ((number[0] & 0xffff0000) >> 16).ToString("X4"));
-                                }
-                                if (system == "n64")
-                                {
-                                    number[0] = BinaryPrimitives.ReverseEndianness(number[0]);
-                                    sb.AppendLine((addr + 0 + 0x01000000).ToString("X4").PadLeft(8, '0') + " " + ((number[0] & 0xffff0000) >> 16).ToString("X4"));
-                                    sb.AppendLine((addr + 2 + 0x01000000).ToString("X4").PadLeft(8, '0') + " " + (number[0] & 0xffff).ToString("X4"));
-                                }
-                                else if (system == "psp")
-                                {
-                                    string convertedstr = "0x" + ((addr - 0x8800000) + 0x20000000).ToString("X8");
-                                    sb.AppendLine(convertedstr + " 0x" + (number[0]).ToString("X8"));
-                                    sb2.AppendLine("_L " + convertedstr + " 0x" + (number[0]).ToString("X8"));
-                                }
-                                else if (system == "nds")
-                                {
-                                    sb.Append($"{number[0]:X8} ");
-                                }
-                                else if (name == "Generic")
-                                {
-                                    //string convertedstr = "04000000 " + ((addr & 0xffffff)).ToString("X8");
-                                    //sb.AppendLine(convertedstr + " " + (number[0]).ToString("X8"));
-                                }
-                                else
-                                {
-                                    sb.AppendLine((addr + 0).ToString("X4") + " " + (number[0]).ToString("X8"));
-                                    sb2.AppendLine("patch=1,EE," + (addr + 0).ToString("X4") + ",extended," + (number[0]).ToString("X8"));
-                                }
-
-                            }
-                            addr += 4;
-                        }
+                        //addr += 4;
+                        //}
 
                         if (name == "Generic")
                         {
@@ -212,56 +186,19 @@ namespace CustomRoutineMaker
                         else
                         {
                             if (system == "gba")
-                                sb2 = CreateGBACodes(data);
-                            else if (system == "ps2")
+                                textGS.Text += CreateGBACodes(data);
+                            else if (system == "psp" || system == "ps2")
                             {
-                                sb.AppendLine("");
-                                sb.AppendLine("//PCSX2 pnatch");
-                            }
-                            else if (system == "psp")
-                            {
-                                sb.AppendLine("");
-                                sb.AppendLine("//CWCheat version");
-                            }
-                            if (system != "gba")
-                            {
-                                if (system == "nds")
-                                {
-                                    string org = "";
-                                    if (textAsm.Text.Contains(".org"))
-                                    {
-                                        int index = textAsm.Text.IndexOf(".org");
+                                if (system == "ps2")
+                                    textGS.Text += "//PCSX2\r\n";
 
-                                        while (textAsm.Text[index] != 'x')
-                                            index++;
 
-                                        org = textAsm.Text.Substring(index + 1, 8);
-                                    }
-
-                                    var sarr = sb.ToString().Split(new[] {' '},StringSplitOptions.RemoveEmptyEntries).ToList();
-
-                                    string bl = sarr[sarr.Count - 1];
-                                    sarr.RemoveAt(sarr.Count - 1);
-
-                                    if ((sarr.Count % 2) > 0)
-                                        sarr.Add("00000000");
-
-                                    textGS.Text += $"E2000000 {sarr.Count * 4:X8}\r\n";
-
-                                    for (int i = 0; i < sarr.Count; i += 2)
-                                    {
-                                        textGS.Text += $"{sarr[i]} {sarr[i + 1]}\r\n";
-                                    }
-
-                                    textGS.Text += $"{org.ToUpper()} {bl}\r\n";
-                                    textGS.Text += $"D2000000 00000000";
-                                }
-                                else
-                                    textGS.Text = sb.ToString();
-                            }
-
-                            if (system == "psp" || system == "ps2" || system == "gba")
                                 textGS.Text += sb2.ToString();
+                                textGS.Text += "\r\n";
+                                textGS.Text += sb.ToString();
+                            }
+                            else
+                                textGS.Text = sb.ToString();
                         }
                     }
                 }
@@ -328,9 +265,9 @@ namespace CustomRoutineMaker
             UpdateStatusBar();
         }
 
-        private void UpdateStatusBar()
+        private void UpdateStatusBar(string selectedlinesnum = "")
         {
-            statusAsm.Text = "Line Number: " + textAsm.GetLineFromCharIndex(textAsm.SelectionStart).ToString();
+            statusAsm.Text = $"Line Number: {textAsm.GetLineFromCharIndex(textAsm.SelectionStart)} {selectedlinesnum}";
             statusBar.Invalidate();
             statusBar.Refresh();
         }
@@ -342,52 +279,57 @@ namespace CustomRoutineMaker
             uint routine = systems[comboBox1.SelectedIndex].routine;
             string system = systems[comboBox1.SelectedIndex].shortname;
 
-            addrtext = addr.ToString("X8");
-            sb.AppendLine("." + system);
-
-            sb.AppendLine(@".create ""out.bin"", 0x" + addr.ToString("X8").PadLeft(8, '0'));
-
-            sb.AppendLine("\n");
-
-            if (system == "gba")
-            {
-                sb.AppendLine(@".org" + "\t" + "0x" + addrtext.PadLeft(8, '0'));
-                sb.AppendLine(@"ldr" + "\t" + "r0,=0x" + routine.ToString("X8").PadLeft(8, '0'));
-                sb.AppendLine(@"bx" + "\t" + "r0");
-                sb.AppendLine(@".pool");
-            }
+            if (system == "psp")
+                textAsm.Text = PSP.Initialize(addr, routine);
             else if (system == "nds")
-            {
-                sb.AppendLine(@".org" + "\t" + "0x" + addr.ToString("X8").PadLeft(8, '0'));
-                sb.AppendLine(@"bl" + "\t" + "0x" + routine.ToString("X8").PadLeft(8, '0'));
-                //sb.AppendLine(@".pool");
-            }
-            else
-            {
-                sb.AppendLine(@".org" + "\t" + "0x" + addrtext.PadRight(8, '0'));
-                sb.AppendLine(@"j" + "\t" + "0x" + routine.ToString("X8").PadLeft(8, '0'));
-            }
+                textAsm.Text = NDS.Initialize(addr, routine);
+            //addrtext = addr.ToString("X8");
+            //sb.AppendLine("." + system);
 
-            sb.AppendLine("\n");
+            ////sb.AppendLine(@".create ""out.bin"", 0x" + addr.ToString("X8").PadLeft(8, '0'));
+            //sb.AppendLine(@".create ""out.bin"", 0x00000000");
 
-            sb.AppendLine(@".org" + "\t" + "0x" + routine.ToString("X8").PadLeft(8, '0'));
+            //sb.AppendLine("\n");
 
-            sb.AppendLine("\n");
-            sb.AppendLine("\n");
-            sb.AppendLine("\n");
+            //if (system == "gba")
+            //{
+            //    sb.AppendLine(@".org" + "\t" + "0x" + addrtext.PadLeft(8, '0'));
+            //    sb.AppendLine(@"ldr" + "\t" + "r0,=0x" + routine.ToString("X8").PadLeft(8, '0'));
+            //    sb.AppendLine(@"bx" + "\t" + "r0");
+            //    sb.AppendLine(@".pool");
+            //}
+            //else if (system == "nds")
+            //{
+            //    sb.AppendLine(@".org" + "\t" + "0x" + addr.ToString("X8").PadLeft(8, '0'));
+            //    sb.AppendLine(@"bl" + "\t" + "0x" + routine.ToString("X8").PadLeft(8, '0'));
+            //    //sb.AppendLine(@".pool");
+            //}
+            //else
+            //{
+            //    sb.AppendLine(@".org" + "\t" + "0x" + addrtext.PadRight(8, '0'));
+            //    sb.AppendLine(@"j" + "\t" + "0x" + routine.ToString("X8").PadLeft(8, '0'));
+            //}
 
-            if (system == "gba")
-                sb.AppendLine(@"bx" + "\t" + "r0");
-            else if (system == "nds")
-                sb.AppendLine(@"bx" + "\t" + "r14");
-            else
-                sb.AppendLine(@"j" + "\t" + "0x" + (routine + 8).ToString("X8").PadLeft(8, '0'));
+            //sb.AppendLine("\n");
 
-            if (system == "gba" || system == "nds")
-                sb.AppendLine(@".pool");
+            //sb.AppendLine(@".org" + "\t" + "0x" + routine.ToString("X8").PadLeft(8, '0'));
 
-            sb.AppendLine(".close");
-            textAsm.Text = sb.ToString();
+            //sb.AppendLine("\n");
+            //sb.AppendLine("\n");
+            //sb.AppendLine("\n");
+
+            //if (system == "gba")
+            //    sb.AppendLine(@"bx" + "\t" + "r0");
+            //else if (system == "nds")
+            //    sb.AppendLine(@"bx" + "\t" + "r14");
+            //else
+            //    sb.AppendLine(@"j" + "\t" + "0x" + (routine + 8).ToString("X8").PadLeft(8, '0'));
+
+            //if (system == "gba" || system == "nds")
+            //    sb.AppendLine(@".pool");
+
+            //sb.AppendLine(".close");
+
             asm_filename = "";
         }
 
@@ -407,33 +349,50 @@ namespace CustomRoutineMaker
             int id = 0xc;
             textPnach.Text = "";
 
-            foreach (string s in lines)
+            //foreach (string s in lines)
+            //{
+            //if (s == "" || li != null || s.Length < 16)
+
+            if (system == "gba")
             {
-                if (s == "" || s == null)
-                    continue;
-                //string[] split = s.Split(' ');
+                //string[] words = new string[4] { "", "", "", "" };
 
-                if (system == "gba")
-                {
-                    string[] words = new string[4];
-                    words[0] = "00000000";
-                    words[1] = s.Substring(0, 8);
-                    words[2] = s.Substring(9, 4).PadLeft(8, '0');
-                    words[3] = "00000000";
+                //words[0] = "00000000";
+                //words[1] = s.Substring(0, 8);
+                //words[2] = s.Substring(9, 4).PadLeft(8, '0');
+                //words[3] = "00000000";
 
-                    List<string> res = ar34.Encrypt(s, words, 8, ref id);
-                    foreach (string st in res)
-                        textPnach.Text += st + Environment.NewLine;
-                }
-                else
-                {
-                    string ns = s;
-                    if (s.Length <= 16)
-                        ns = ns.PadRight(17, '0').Replace(" ", "");
-                    textPnach.Text += $"patch=1,EE,{ns.Substring(0, 8):X4},extended,{ns.Substring(9, 8):X8}\n";
-                }
-
+                //List<string> res = ar34.Encrypt(s, words, 8, ref id);
+                //foreach (string st in res)
+                //    textPnach.Text += st + Environment.NewLine;
             }
+            else if (system == "ps2")
+            {
+                //string ns = s;
+                //if (s.Length <= 16)
+                //    ns = ns.PadRight(17, '0').Replace(" ", "");
+                //textPnach.Text += $"patch=1,EE,{ns.Substring(0, 8):X4},extended,{ns.Substring(9, 8):X8}\n";
+            }
+            else if (system == "psp")
+                textPnach.Text = string.Join(Environment.NewLine,
+                    PSP.ConvertToGHFormat(textPS2.Text.Split(new[] { '\n' },
+                    StringSplitOptions.RemoveEmptyEntries).ToArray()));
+        }
+
+        private void textGS_MouseDown(object sender, MouseEventArgs e)
+        {
+            var count = textGS.SelectedText.Split(Environment.NewLine).Length;
+
+            if (count > 1)
+                UpdateStatusBar($"{count:X2}");
+        }
+
+        private void textGS_MouseMove(object sender, MouseEventArgs e)
+        {
+            var count = textGS.SelectedText.Split(Environment.NewLine).Length;
+
+            if (count > 1)
+                UpdateStatusBar($"- Selection: {count:X2}");
         }
     }
 }
