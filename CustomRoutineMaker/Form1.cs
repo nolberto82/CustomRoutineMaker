@@ -33,6 +33,7 @@ namespace CustomRoutineMaker
             systems.Add(new SystemType("Nintendo 64", "n64", 0x80400000, 0x80000000));
             systems.Add(new SystemType("Gameboy Advance", "gba", 0x0203ff00, 0x0203ff00));
             systems.Add(new SystemType("Nintendo DS", "nds", 0x02000000, 0x02000000));
+            systems.Add(new SystemType("Nintendo Switch", "nds", 0x00000000, 0x00000000));
             systems.Add(new SystemType("Generic", "gen", 0x00000000, 0x00000000));
 
             foreach (SystemType s in systems)
@@ -94,7 +95,7 @@ namespace CustomRoutineMaker
 
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.Filter = "ASM Files (*.asm)|*.asm";
-            sfd.InitialDirectory = Environment.CurrentDirectory + "/ASM";
+            sfd.InitialDirectory = Environment.CurrentDirectory + "\\ASM";
 
             if (asm_filename == "" || asm_filename == null)
             {
@@ -129,6 +130,7 @@ namespace CustomRoutineMaker
                 app.RedirectStandardOutput = true;
                 app.CreateNoWindow = true;
 
+
                 using (Process process = Process.Start(app))
                 {
                     using (StreamReader sr = process.StandardOutput)
@@ -159,56 +161,46 @@ namespace CustomRoutineMaker
                             //sb.Append($"{addr:X8} {r[0]:X2}{r[1]:X2}\r\n");
                             //sb.Append($"{addr + 2:X8} {r[2]:X2}{r[3]:X2}\r\n");
                         }
+                        else if (system == "nds" && name == "Nintendo Switch")
+                            textGS.Text = string.Join(Environment.NewLine, SWI.Run(data, addr, textAsm.Text));
                         else if (system == "psp")
                             textGS.Text = string.Join(Environment.NewLine, PSP.Run(data, addr, textAsm.Text));
-                        else if (system == "nds")
-                        {
-                            textGS.Text = string.Join(Environment.NewLine, NDS.Run(data, addr, textAsm.Text));
-                        }
-                        else if (name == "Generic")
-                        {
-                            //string convertedstr = "04000000 " + ((addr & 0xffffff)).ToString("X8");
-                            //sb.AppendLine(convertedstr + " " + (number[0]).ToString("X8"));
-                        }
                         else if (system == "ps2")
-                        {
-                            //sb2.AppendLine("patch=1,EE," + (addr + 0).ToString("X4") + ",extended," + (number[0]).ToString("X8"));
-                            //sb.AppendLine((addr + 0).ToString("X4") + " " + (number[0]).ToString("X8"));
-                        }
+                            textGS.Text = string.Join(Environment.NewLine, PS2.Run(data, addr, textAsm.Text));
+                        else if (system == "gba")
+                            textGS.Text = string.Join(Environment.NewLine, GBA.Run(data, addr, textAsm.Text));
+                        else if (system == "nds")
+                            textGS.Text = string.Join(Environment.NewLine, NDS.Run(data, addr, textAsm.Text));
+
+
+                        //else if (system == "ps2")
+                        //{
+                        //textGS.Text = string.Join(Environment.NewLine, PS2.Run(data, addr, textAsm.Text));
+                        //sb2.AppendLine("patch=1,EE," + (addr + 0).ToString("X4") + ",extended," + (number[0]).ToString("X8"));
+                        //sb.AppendLine((addr + 0).ToString("X4") + " " + (number[0]).ToString("X8"));
+                        //}
 
                         //addr += 4;
                         //}
-
-                        if (name == "Generic")
-                        {
-                            textGS.Text = sb.ToString();
-                        }
-                        else
-                        {
-                            if (system == "gba")
-                                textGS.Text += CreateGBACodes(data);
-                            else if (system == "psp" || system == "ps2")
-                            {
-                                if (system == "ps2")
-                                    textGS.Text += "//PCSX2\r\n";
-
-
-                                textGS.Text += sb2.ToString();
-                                textGS.Text += "\r\n";
-                                textGS.Text += sb.ToString();
-                            }
-                            else
-                                textGS.Text = sb.ToString();
-                        }
+                        //if (system == "gba")
+                        //textGS.Text += CreateGBACodes(data);
+                        //else if (system == "psp" || system == "ps2")
+                        //{
+                        //textGS.Text += sb2.ToString();
+                        //textGS.Text += "\r\n";
+                        //textGS.Text += sb.ToString();
+                        // }
+                        //else
+                        //    textGS.Text = sb.ToString();
                     }
                 }
+
                 if (File.Exists("out.bin"))
                     File.Delete("out.bin");
             }
+
             else
-            {
                 MessageBox.Show("No ASM File loaded", "Error");
-            }
         }
 
         private StringBuilder CreateGBACodes(byte[] data)
@@ -250,7 +242,7 @@ namespace CustomRoutineMaker
                             words[1] = lines.Substring(9, 8);
                         }
 
-                        List<string> res = ar34.Encrypt(lines, words, addrt, ref id);
+                        List<string> res = ar34.Encrypt(lines, words, ref id);
                         foreach (string st in res)
                             sb.AppendLine(st);
                     }
@@ -281,8 +273,13 @@ namespace CustomRoutineMaker
 
             if (system == "psp")
                 textAsm.Text = PSP.Initialize(addr, routine);
+            else if (system == "ps2")
+                textAsm.Text = PS2.Initialize(addr, routine);
+            else if (system == "gba")
+                textAsm.Text = GBA.Initialize(addr, routine);
             else if (system == "nds")
                 textAsm.Text = NDS.Initialize(addr, routine);
+
             //addrtext = addr.ToString("X8");
             //sb.AppendLine("." + system);
 
@@ -355,24 +352,14 @@ namespace CustomRoutineMaker
 
             if (system == "gba")
             {
-                //string[] words = new string[4] { "", "", "", "" };
-
-                //words[0] = "00000000";
-                //words[1] = s.Substring(0, 8);
-                //words[2] = s.Substring(9, 4).PadLeft(8, '0');
-                //words[3] = "00000000";
-
-                //List<string> res = ar34.Encrypt(s, words, 8, ref id);
-                //foreach (string st in res)
-                //    textPnach.Text += st + Environment.NewLine;
+                textPnach.Text = string.Join(Environment.NewLine,
+                    GBA.ConvertToARFormat(textPS2.Text.Split(new[] { '\n' },
+                    StringSplitOptions.RemoveEmptyEntries).ToArray()));
             }
             else if (system == "ps2")
-            {
-                //string ns = s;
-                //if (s.Length <= 16)
-                //    ns = ns.PadRight(17, '0').Replace(" ", "");
-                //textPnach.Text += $"patch=1,EE,{ns.Substring(0, 8):X4},extended,{ns.Substring(9, 8):X8}\n";
-            }
+                textPnach.Text = string.Join(Environment.NewLine,
+                    PS2.ConvertToPnachFormat(textPS2.Text.Split(new[] { '\n' },
+                    StringSplitOptions.RemoveEmptyEntries).ToArray()));
             else if (system == "psp")
                 textPnach.Text = string.Join(Environment.NewLine,
                     PSP.ConvertToGHFormat(textPS2.Text.Split(new[] { '\n' },

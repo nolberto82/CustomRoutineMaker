@@ -176,17 +176,13 @@ namespace CustomRoutineMaker
             // 
             // textGS
             // 
-            this.textGS.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textGS.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.textGS.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.textGS.Location = new System.Drawing.Point(383, 79);
             this.textGS.Multiline = true;
             this.textGS.Name = "textGS";
             this.textGS.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textGS.Size = new System.Drawing.Size(411, 656);
+            this.textGS.Size = new System.Drawing.Size(407, 656);
             this.textGS.TabIndex = 15;
-            this.textGS.TabStop = false;
-            this.textGS.MouseDown += new System.Windows.Forms.MouseEventHandler(this.textGS_MouseDown);
-            this.textGS.MouseMove += new System.Windows.Forms.MouseEventHandler(this.textGS_MouseMove);
             // 
             // Form1
             // 

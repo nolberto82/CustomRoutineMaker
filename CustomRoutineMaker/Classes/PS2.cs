@@ -1,29 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
 
 namespace CustomRoutineMaker.Classes
 {
-    internal class PSP
+    internal class PS2
     {
         public static string Initialize(uint addr, uint routine)
         {
             StringBuilder sb = new();
 
             //sb.AppendLine(@".create ""out.bin"", 0x" + addr.ToString("X8").PadLeft(8, '0'));
-            sb.AppendLine(@".psp");
+            sb.AppendLine(@".ps2");
             sb.AppendLine(@".create ""out.bin"", 0x00000000");
 
             sb.AppendLine("\n");
 
-            sb.AppendLine($".org\t 0x08800000");
-            sb.AppendLine($"j\t 0x08801000");
+            sb.AppendLine($".org\t 0x20000000");
+            sb.AppendLine($"j\t 0x200A0000");
 
             sb.AppendLine("");
 
@@ -32,13 +29,13 @@ namespace CustomRoutineMaker.Classes
             sb.AppendLine($"//evalue:");
             sb.AppendLine($"//.dw\t 0x00000000\r\n");
 
-            sb.AppendLine($".org\t 0x08801000");
+            sb.AppendLine($".org\t 0x200A0000");
 
             sb.AppendLine("\n");
             sb.AppendLine("\n");
             sb.AppendLine("\n");
 
-            sb.AppendLine($"j\t 0x08801008");
+            sb.AppendLine($"j\t 0x200A0008");
 
             sb.AppendLine(".close");
 
@@ -53,6 +50,9 @@ namespace CustomRoutineMaker.Classes
             sb[1] = new();
             int linesnum = 0;
 
+            sb[0].Append("//PCSX2\r\n");
+            sb[1].Append("//PS2\r\n");
+
             for (int i = 0; i < data.Length / 4; i++)
             {
                 int[] value = new int[1];
@@ -60,8 +60,8 @@ namespace CustomRoutineMaker.Classes
 
                 if (value[0] != 0 && (value[0] & 0xffff0000) != 0xe0000000)
                 {
-                    sb[0].Append($"_L 0x{addr + 0x20000000:X8} 0x{value[0]:X8}\r\n");
-                    sb[1].Append($"0x{addr + 0x20000000:X8} 0x{value[0]:X8}\r\n");
+                    sb[0].Append($"patch=1,EE,{addr:X8},extended,{value[0]:X8}\r\n");
+                    sb[1].Append($"{addr:X8} {value[0]:X8}\r\n");
                     linesnum++;
                 }
                 addr += 4;
@@ -80,25 +80,15 @@ namespace CustomRoutineMaker.Classes
                 while (asm[index] != 'x')
                     index++;
 
-                uint evalue = 0;
-                try
-                {
-                    evalue = System.Convert.ToUInt32(asm.Substring(index + 1, 8), 16);
-                }
-
-                catch (Exception e)
-                {
-                    list.Add("evalue less than 8 chars");
-                    return list;
-                }
+                uint evalue = System.Convert.ToUInt32(asm.Substring(index + 1, 8), 16);
 
                 if (index > -1 && evalue > 0)
                 {
                     eaddr = eaddr.Remove(2, 2).Insert(2, $"{linesnum:X2}");
-                    sb[0].Insert(0, $"_L 0x{eaddr.ToUpper()} " +
-                        $"0x{evalue:X8}\r\n");
-                    sb[1].Insert(0, $"0x{eaddr.ToUpper()} " +
-                        $"0x{evalue:X8}\r\n");
+                    sb[0].Insert(0, $"patch=1,EE,{eaddr.ToUpper()} " +
+                        $"{evalue:X8}\r\n");
+                    sb[1].Insert(0, $"{eaddr.ToUpper()} " +
+                        $"{evalue:X8}\r\n");
                 }
             }
 
@@ -108,7 +98,7 @@ namespace CustomRoutineMaker.Classes
             return list;
         }
 
-        public static List<string> ConvertToGHFormat(string[] lines)
+        public static List<string> ConvertToPnachFormat(string[] lines)
         {
             List<string> list = new();
 
@@ -117,20 +107,13 @@ namespace CustomRoutineMaker.Classes
 
             for (int i = 0; i < lines.Length; i++)
             {
-                if (lines[i].StartsWith('\r') || lines[i].StartsWith("\r\n"))
+                string ns = lines[i].Trim().Replace(" ", "");
+                if (ns.Length < 16)
                 {
-                    list.Add("\r\r");
-                    continue;
+                    list.Add($"{ns} - code too short");
+                    return list;
                 }
-
-                if (lines[i].Substring(0, 2) == "_C")
-                    list.Add(lines[i].Substring(3, lines[i].Length - 3).TrimStart());
-                else
-                {
-                    lines[i] = lines[i].ToUpper().Replace("X", "x").Replace("\r", "");
-                    list.Add(lines[i].Substring(2, lines[i].Length - 2).TrimStart());
-                }
-
+                list.Add($"patch=1,EE,{ns.Substring(0, 8):X4},extended,{ns.Substring(8, 8):X8}");
             }
 
             return list;

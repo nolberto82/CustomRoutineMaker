@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -49,22 +50,26 @@ namespace CustomRoutineMaker
         };
 
 
-        public List<string> Encrypt(string lines, string[] words, int codetype, ref int id)
+        public List<string> Encrypt(string lines, string[] words, ref int id)
         {
             List<string> encode = new List<string>();
             ulong tmp1, tmp2, tmp3;
-            ulong upper;
-            ulong lower;
+            ulong upper = 0;
+            ulong lower = 0;
+            ulong addr = 0;
+
 
             ulong[] seeds = GetDeadFace(0);
 
             for (int i = 0; i < words.Length; i += 2)
             {
-                upper = Convert.ToUInt64(words[i].Replace(" ", ""), 16);
+                addr = Convert.ToUInt64(words[i].Replace(" ", ""), 16);
                 lower = Convert.ToUInt64(words[i + 1].Replace(" ", ""), 16);
+                int codetype = (int)(addr >> 24);
 
                 if (codetype == 8)
                 {
+                    upper = addr;
                     if (words[i + 1].StartsWith("08"))
                     {
                         lower = (ulong)(0x10000000 + (id * 2)) << 24 | (lower & 0xffffff) >> 1;
@@ -73,8 +78,9 @@ namespace CustomRoutineMaker
                 }
                 else
                 {
-                    ulong addr = (upper & 0xf000000) >> 4;
-                    upper = (upper >> 4) & 0x700000 | (upper & 0xbffff) | 2 << 25;
+                    upper = ((addr << 4) & 0xf000000);
+                    upper |= (((addr >> 4) & 0x700000) | (addr & 0xbffff)) | 2 << 25;
+                    //upper >>= 1;
                 }
 
                 ulong rollingseed = 0;
