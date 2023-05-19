@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.ApplicationServices;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
@@ -50,38 +51,18 @@ namespace CustomRoutineMaker
         };
 
 
-        public List<string> Encrypt(string lines, string[] words, ref int id)
+        public List<string> Encrypt(string[] words)
         {
-            List<string> encode = new List<string>();
-            ulong tmp1, tmp2, tmp3;
-            ulong upper = 0;
-            ulong lower = 0;
-            ulong addr = 0;
+            List<string> codes = new();
+            uint tmp1, tmp2, tmp3;
 
 
             ulong[] seeds = GetDeadFace(0);
 
             for (int i = 0; i < words.Length; i += 2)
             {
-                addr = Convert.ToUInt64(words[i].Replace(" ", ""), 16);
-                lower = Convert.ToUInt64(words[i + 1].Replace(" ", ""), 16);
-                int codetype = (int)(addr >> 24);
-
-                if (codetype == 8)
-                {
-                    upper = addr;
-                    if (words[i + 1].StartsWith("08"))
-                    {
-                        lower = (ulong)(0x10000000 + (id * 2)) << 24 | (lower & 0xffffff) >> 1;
-                        id++;
-                    }
-                }
-                else
-                {
-                    upper = ((addr << 4) & 0xf000000);
-                    upper |= (((addr >> 4) & 0x700000) | (addr & 0xbffff)) | 2 << 25;
-                    //upper >>= 1;
-                }
+                uint upper = Convert.ToUInt32(words[i].Replace(" ", ""), 16);
+                uint lower = Convert.ToUInt32(words[i + 1].Replace(" ", ""), 16);
 
                 ulong rollingseed = 0;
 
@@ -91,20 +72,58 @@ namespace CustomRoutineMaker
                 for (int j = 0; j < 32; j++)
                 {
                     rollingseed += 0x9E3779B9;
-                    tmp1 = ((lower << 4) + seeds[0]);
-                    tmp2 = lower + rollingseed;
-                    tmp3 = ((lower >> 5) & 0x07FFFFFF) + seeds[1];
+                    tmp1 = ((uint)((lower << 4) + seeds[0]));
+                    tmp2 = (uint)(lower + rollingseed);
+                    tmp3 = (uint)(((lower >> 5) & 0x07FFFFFF) + seeds[1]);
                     upper += (tmp1 ^ tmp2) ^ tmp3;
                     upper &= 0xFFFFFFFF;
-                    tmp1 = ((upper << 4) + seeds[2]);
-                    tmp2 = upper + rollingseed;
-                    tmp3 = ((upper >> 5) & 0x07FFFFFF) + seeds[3];
+                    tmp1 = ((uint)((upper << 4) + seeds[2]));
+                    tmp2 = (uint)(upper + rollingseed);
+                    tmp3 = (uint)(((upper >> 5) & 0x07FFFFFF) + seeds[3]);
                     lower += (tmp1 ^ tmp2) ^ tmp3;
                     lower &= 0xFFFFFFFF;
                 }
 
-                encode.Add($"{upper:X8} {lower:X8}");
+                codes.Add($"{upper:X8} {lower:X8}");
             }
+            return codes;
+        }
+
+        public List<string> Encode(string lines, string[] words, ref int id)
+        {
+            List<string> encode = new();
+
+            uint upper = 0;
+            uint lower = 0;
+            uint addr = 0;
+            bool firstline = true;
+
+            for (int i = 0; i < words.Length; i += 2)
+            {
+                addr = Convert.ToUInt32(words[i].Replace(" ", ""), 16);
+                lower = Convert.ToUInt32(words[i + 1].Replace(" ", ""), 16);
+                int codetype = (int)(addr >> 24);
+
+                if (words.Length == 4)
+                {
+                    upper = addr;
+                    if (firstline)
+                    {
+                        lower = (uint)(0x10000000 + (id * 2)) << 24 | (lower & 0xffffff) >> 1;
+                        id++;
+                        firstline = false;
+                    }
+                }
+                else
+                {
+                    upper = ((addr << 4) & 0xf000000);
+                    upper |= (((addr >> 4) & 0x700000) | (addr & 0xbffff)) | 2 << 25;
+                }
+
+                encode.Add($"{upper:X8}");
+                encode.Add($"{lower:X8}");
+            }
+
             return encode;
         }
 

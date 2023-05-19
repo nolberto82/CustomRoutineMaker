@@ -143,23 +143,23 @@ namespace CustomRoutineMaker
                         byte[] data = File.ReadAllBytes("out.bin");
                         string system = systems[comboBox1.SelectedIndex].shortname;
                         string name = systems[comboBox1.SelectedIndex].name;
-                        uint addr = systems[comboBox1.SelectedIndex].origaddr;
+                        uint addr = 0;
 
-                        //for (int i = 0; i < data.Length / 4; i++)
-                        //{
+
+                        int pos = textAsm.Text.LastIndexOf(".org");
+
+                        while (textAsm.Text[pos] != '0')
+                            pos++;
+
+                        var str = textAsm.Text.Substring(pos).Trim().Split("\r");
+                        if (str.Length > 0)
+                            addr = Convert.ToUInt32(str[0], 16);
 
                         if (system == "psx")
                         {
-                            //sb.Append($"{addr:X8} {number[0] & 0xffff:X4}\r\n");
-                            //sb.Append($"{addr + 2:X8} {number[0] >> 16:X4}\r\n");
                         }
-                        if (system == "n64")
+                        else if (system == "n64")
                         {
-
-                            //var r = BitConverter.GetBytes(number[0]);
-                            //addr |= 0x01000000;
-                            //sb.Append($"{addr:X8} {r[0]:X2}{r[1]:X2}\r\n");
-                            //sb.Append($"{addr + 2:X8} {r[2]:X2}{r[3]:X2}\r\n");
                         }
                         else if (system == "nds" && name == "Nintendo Switch")
                             textGS.Text = string.Join(Environment.NewLine, SWI.Run(data, addr, textAsm.Text));
@@ -168,7 +168,25 @@ namespace CustomRoutineMaker
                         else if (system == "ps2")
                             textGS.Text = string.Join(Environment.NewLine, PS2.Run(data, addr, textAsm.Text));
                         else if (system == "gba")
-                            textGS.Text = string.Join(Environment.NewLine, GBA.Run(data, addr, textAsm.Text));
+                        {
+                            (List<string> ARcodes, List<string> Rawcodes, List<string> Bytes) = GBA.Run(data, addr, textAsm.Text);
+                            textGS.Text = string.Join(Environment.NewLine, ARcodes);
+                            textGS.Text += "\r\n\r\n";
+                            int c = 0;
+                            foreach (var s in Rawcodes)
+                            {
+                                c++;
+                                if (c == Rawcodes.Count)
+                                    textGS.Text += $"{s}";
+                                else
+                                    textGS.Text += $"{s}+\r\n";
+                            }
+
+                            textGS.Text += "\r\n\r\n";
+                            foreach (var s in Bytes)
+                                textGS.Text += s;
+
+                        }
                         else if (system == "nds")
                             textGS.Text = string.Join(Environment.NewLine, NDS.Run(data, addr, textAsm.Text));
 
@@ -201,55 +219,6 @@ namespace CustomRoutineMaker
 
             else
                 MessageBox.Show("No ASM File loaded", "Error");
-        }
-
-        private StringBuilder CreateGBACodes(byte[] data)
-        {
-            uint addr = 0;//= systems[comboBox1.SelectedIndex].origaddr;
-            StringBuilder sb = new StringBuilder();
-            int id = 0xc;
-
-            for (int i = 0; i < data.Length / 4; i++)
-            {
-                int[] number = new int[1];
-                Buffer.BlockCopy(data, i * 4, number, 0, 4);
-                if (number[0] != 0)
-                {
-                    string lines = (addr + 0).ToString("X4").PadLeft(8, '0') + " " + (number[0]).ToString("X8");
-                    if (lines != "")
-                    {
-                        int addrt = Convert.ToInt32(lines.Substring(0, 8), 16) >> 24;
-                        string[] words;
-
-                        if (addrt == 8)
-                        {
-                            words = new string[8];
-                            string line1 = (addr + 0).ToString("X4").PadLeft(8, '0') + " " + (number[0] & 0xffff).ToString("X4");
-                            string line2 = (addr + 2).ToString("X4").PadLeft(8, '0') + " " + ((number[0] & 0xffff0000) >> 16).ToString("X4");
-                            words[0] = "00000000";
-                            words[1] = line1.Substring(0, 8);
-                            words[2] = line1.Substring(9, 4).PadLeft(8, '0');
-                            words[3] = "00000000";
-                            words[4] = "00000000";
-                            words[5] = line2.Substring(0, 8);
-                            words[6] = line2.Substring(9, 4).PadLeft(8, '0');
-                            words[7] = "00000000";
-                        }
-                        else
-                        {
-                            words = new string[2];
-                            words[0] = lines.Substring(0, 8);
-                            words[1] = lines.Substring(9, 8);
-                        }
-
-                        List<string> res = ar34.Encrypt(lines, words, ref id);
-                        foreach (string st in res)
-                            sb.AppendLine(st);
-                    }
-                }
-                addr += 4;
-            }
-            return sb;
         }
 
         private void textAsm_Click(object sender, EventArgs e)
