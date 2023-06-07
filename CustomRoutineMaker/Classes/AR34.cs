@@ -56,7 +56,6 @@ namespace CustomRoutineMaker
             List<string> codes = new();
             uint tmp1, tmp2, tmp3;
 
-
             ulong[] seeds = GetDeadFace(0);
 
             for (int i = 0; i < words.Length; i += 2)
@@ -72,18 +71,53 @@ namespace CustomRoutineMaker
                 for (int j = 0; j < 32; j++)
                 {
                     rollingseed += 0x9E3779B9;
-                    tmp1 = ((uint)((lower << 4) + seeds[0]));
+                    tmp1 = (uint)((lower << 4) + seeds[0]);
                     tmp2 = (uint)(lower + rollingseed);
                     tmp3 = (uint)(((lower >> 5) & 0x07FFFFFF) + seeds[1]);
-                    upper += (tmp1 ^ tmp2) ^ tmp3;
+                    upper += tmp1 ^ tmp2 ^ tmp3;
                     upper &= 0xFFFFFFFF;
-                    tmp1 = ((uint)((upper << 4) + seeds[2]));
+                    tmp1 = (uint)((upper << 4) + seeds[2]);
                     tmp2 = (uint)(upper + rollingseed);
                     tmp3 = (uint)(((upper >> 5) & 0x07FFFFFF) + seeds[3]);
-                    lower += (tmp1 ^ tmp2) ^ tmp3;
+                    lower += tmp1 ^ tmp2 ^ tmp3;
                     lower &= 0xFFFFFFFF;
                 }
 
+                codes.Add($"{upper:X8} {lower:X8}");
+            }
+            return codes;
+        }
+
+        public List<string> Decrypt(string[] words)
+        {
+            List<string> codes = new();
+            uint tmp1, tmp2, tmp3;
+
+            ulong[] seeds = GetDeadFace(0);
+
+            for (int i = 0; i < words.Length; i += 2)
+            {
+                uint upper = Convert.ToUInt32(words[i].Replace(" ", ""), 16);
+                uint lower = Convert.ToUInt32(words[i + 1].Replace(" ", ""), 16);
+
+                ulong rollingseed = 0xC6EF3720;
+
+                for (int j = 0; j < 32; j++)
+                {
+                    tmp1 = (uint)((upper << 4) + seeds[2]);
+                    tmp2 = (uint)(upper + rollingseed);
+                    tmp3 = (uint)(((upper >> 5) & 0x07FFFFFF) + seeds[3]);
+                    lower -= tmp1 ^ tmp2 ^ tmp3;
+                    lower &= 0xFFFFFFFF;
+                    tmp1 = (uint)((lower << 4) + seeds[0]);
+                    tmp2 = (uint)(lower + rollingseed);
+                    tmp3 = (uint)(((lower >> 5) & 0x07FFFFFF) + seeds[1]);
+                    upper -= tmp1 ^ tmp2 ^ tmp3;
+                    upper &= 0xFFFFFFFF;
+                    rollingseed -= 0x9E3779B9;
+                }
+                if (upper == 0xDEADFACE)
+                    GetDeadFace(lower);
                 codes.Add($"{upper:X8} {lower:X8}");
             }
             return codes;
@@ -116,8 +150,8 @@ namespace CustomRoutineMaker
                 }
                 else
                 {
-                    upper = ((addr << 4) & 0xf000000);
-                    upper |= (((addr >> 4) & 0x700000) | (addr & 0xbffff)) | 2 << 25;
+                    upper = (addr << 4) & 0xf000000;
+                    upper |= ((addr >> 4) & 0x700000) | (addr & 0xbffff) | 2 << 25;
                 }
 
                 encode.Add($"{upper:X8}");
@@ -127,12 +161,43 @@ namespace CustomRoutineMaker
             return encode;
         }
 
+        public List<string> Decode(string lines, string[] words, ref int id)
+        {
+            List<string> decode = new();
+
+            uint upper = 0;
+            uint lower = 0;
+            bool firstline = true;
+
+            for (int i = 0; i < words.Length; i += 2)
+            {
+                upper = Convert.ToUInt32(words[i], 16);
+                lower = Convert.ToUInt32(words[i + 1], 16);
+                int codetype = (int)(upper >> 28);
+
+                if ((upper & (1 << 27)) == (1 << 27))
+                {
+                    if (firstline)
+                    {
+                        //lower = (uint)(0x10000000 + (id * 2)) << 24 | (lower & 0x7fffff) >> 1;
+                        id++;
+                        firstline = false;
+                    }
+                }
+
+                decode.Add($"{upper:X8}");
+                decode.Add($"{lower:X8}");
+            }
+
+            return decode;
+        }
+
         public ulong[] GetDeadFace(ulong value)
         {
             ulong[] seeds = new ulong[4];
 
             for (ulong i = 0; i < 4; i++)
-                seeds[i] = (ulong)GenerateNewSeed((value & 0xff00) >> 8, ((value & 0xff) + i));
+                seeds[i] = (ulong)GenerateNewSeed((value & 0xff00) >> 8, (value & 0xff) + i);
 
             return seeds;
         }

@@ -60,8 +60,8 @@ namespace CustomRoutineMaker.Classes
 
                 if (value[0] != 0 && (value[0] & 0xffff0000) != 0xe0000000)
                 {
-                    sb[0].Append($"_L 0x{addr + 0x20000000:X8} 0x{value[0]:X8}\r\n");
-                    sb[1].Append($"0x{addr + 0x20000000:X8} 0x{value[0]:X8}\r\n");
+                    sb[0].Append($"_L 0x{addr - 0x08800000 + 0x20000000:X8} 0x{value[0]:X8}\r\n");
+                    sb[1].Append($"0x{addr - 0x08800000 + 0x20000000:X8} 0x{value[0]:X8}\r\n");
                     linesnum++;
                 }
                 addr += 4;
@@ -80,18 +80,14 @@ namespace CustomRoutineMaker.Classes
                 while (asm[index] != 'x')
                     index++;
 
-                uint evalue = 0;
-                try
-                {
-                    evalue = System.Convert.ToUInt32(asm.Substring(index + 1, 8), 16);
-                }
-
-                catch (Exception e)
+                string evaluestr = asm.Substring(index + 1, 8);
+                if (evaluestr.Length < 8)
                 {
                     list.Add("evalue less than 8 chars");
                     return list;
                 }
 
+                uint evalue = System.Convert.ToUInt32(evaluestr, 16);
                 if (index > -1 && evalue > 0)
                 {
                     eaddr = eaddr.Remove(2, 2).Insert(2, $"{linesnum:X2}");

@@ -130,7 +130,6 @@ namespace CustomRoutineMaker
                 app.RedirectStandardOutput = true;
                 app.CreateNoWindow = true;
 
-
                 using (Process process = Process.Start(app))
                 {
                     using (StreamReader sr = process.StandardOutput)
@@ -145,15 +144,17 @@ namespace CustomRoutineMaker
                         string name = systems[comboBox1.SelectedIndex].name;
                         uint addr = 0;
 
+                        int pos = textAsm.Text.LastIndexOf(".definelabel");
 
-                        int pos = textAsm.Text.LastIndexOf(".org");
+                        if (pos > -1)
+                        {
+                            while (textAsm.Text[pos] != '0')
+                                pos++;
 
-                        while (textAsm.Text[pos] != '0')
-                            pos++;
-
-                        var str = textAsm.Text.Substring(pos).Trim().Split("\r");
-                        if (str.Length > 0)
-                            addr = Convert.ToUInt32(str[0], 16);
+                            var str = textAsm.Text.Substring(pos).Trim().Split("\r");
+                            if (str.Length > 0)
+                                addr = Convert.ToUInt32(str[0], 16);
+                        }
 
                         if (system == "psx")
                         {
@@ -312,18 +313,40 @@ namespace CustomRoutineMaker
         {
             string system = systems.Find(s => s.name == (string)comboBox2.SelectedItem).shortname;
             string[] lines = textPS2.Lines;
-            int id = 0xc;
             textPnach.Text = "";
-
-            //foreach (string s in lines)
-            //{
-            //if (s == "" || li != null || s.Length < 16)
 
             if (system == "gba")
             {
-                textPnach.Text = string.Join(Environment.NewLine,
-                    GBA.ConvertToARFormat(textPS2.Text.Split(new[] { '\n' },
-                    StringSplitOptions.RemoveEmptyEntries).ToArray()));
+                var codes = GBA.ConvertToARFormat(textPS2.Text.Split(new[] { '\n' }));
+                if (codes.Count == 0)
+                {
+                    codes = GBA.ConvertToRawFormat(textPS2.Text.Split(new[] { '\n' }));
+
+                    for (int i = 0; i < codes.Count(); i++)
+                    {
+                        var s = codes[i].Replace(" ", "");
+                        int c = Convert.ToInt32(s.Substring(0, 8), 16) >> 24;
+                        int addr = 0;
+                        int val = 0;
+                        if (c == 0)
+                        {
+                            addr = (Convert.ToInt32(s.Substring(8, 8), 16) & 0xffffff) << 1 | 0x08000000;
+                            i++;
+                            s = codes[i].Replace(" ", "");
+                            val = Convert.ToInt32(s.Substring(0, 8), 16);
+                            textPnach.Text += $"{addr:X8} {val:X8}\r\n";
+                        }
+                        else
+                        {
+                            var a = Convert.ToInt32(s.Substring(0, 8), 16);
+                            addr = (a & 0xf00000) << 4 | (a & 0xfffff);
+                            val = Convert.ToInt32(s.Substring(8, 8), 16);
+                            textPnach.Text += $"{addr:X8} {val:X8}\r\n";
+                        }
+                    }
+                }
+                else
+                    textPnach.Text = string.Join(Environment.NewLine, codes);
             }
             else if (system == "ps2")
                 textPnach.Text = string.Join(Environment.NewLine,
