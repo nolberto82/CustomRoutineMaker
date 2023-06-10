@@ -162,6 +162,8 @@ namespace CustomRoutineMaker
                         else if (system == "n64")
                         {
                         }
+                        else if (system == "nds")
+                            textGS.Text = string.Join(Environment.NewLine, NDS.Run(data, addr, textAsm.Text));
                         else if (system == "nds" && name == "Nintendo Switch")
                             textGS.Text = string.Join(Environment.NewLine, SWI.Run(data, addr, textAsm.Text));
                         else if (system == "psp")

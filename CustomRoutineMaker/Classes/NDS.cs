@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -48,6 +49,7 @@ namespace CustomRoutineMaker.Classes
         {
             List<string> list = new();
             StringBuilder sb = new();
+            uint function = addr;
 
             for (int i = 0; i < data.Length / 4; i++)
             {
@@ -55,34 +57,46 @@ namespace CustomRoutineMaker.Classes
                 Buffer.BlockCopy(data, i * 4, value, 0, 4);
 
                 if (value[0] != 0)
-                    sb.AppendLine($"0x{0x02000000 | addr & 0xffffff:X8} 0x{value[0]:X8}");
+                    sb.AppendLine($"{0x02000000 | addr & 0xffffff:X8} {value[0]:X8}");
 
                 addr += 4;
             }
 
             bool isthumb = asm.IndexOf(".thumb") > -1 ? true : false;
-            var lines = sb.ToString().Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-            var bl = lines[lines.Count - 1];
-            var bra = Convert.ToUInt32(lines[0].Substring(11, 10), 16);
-            if ((bra & 0xff00) >= 0xf000 || (bra >> 24) == 0xeb)
-            {
-                bl = lines[0];
-                lines.RemoveAt(0);
-            }
-            else
-                lines.RemoveAt(lines.Count - 1);
+            var lines = sb.ToString().Replace(" ", "").Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
-            lines = lines.Select(l => l.Substring(11, 10)).ToList();
+            List<string> bl = new();
+            for (int h = lines.Count - 1; h >= 0; h--)
+            {
+                if (lines[h].Substring(8, 2) == "EB")
+                {
+                    bl.Add(lines[h].Insert(8, " "));
+                    lines.RemoveAt(h);
+                }
+            }
+
+            lines = lines.Select(l => l.Substring(8, 8)).ToList();
 
             if ((lines.Count % 2) > 0)
-                lines.Add("0x00000000");
+                lines.Add("00000000");
 
             for (int i = 0; i < lines.Count; i += 2)
-                list.Add($"{lines[i]} {lines[i + 1]}\n");
+                list.Add($"{lines[i]} {lines[i + 1]}");
 
-            list.Add(bl);
-            list.Insert(0, $"0xE2000000 0x{lines.Count * 4:X8}");
-            list.Add($"0xD2000000 0x00000000");
+            int index = asm.IndexOf("//ecode:");
+            int eaddr = 0;
+            if (index > 0)
+            {
+                while (asm[index] != 'x')
+                    index++;
+
+                eaddr = Convert.ToInt32(asm.Substring(index + 1, 8), 16);
+            }
+
+
+            list.AddRange(bl);
+            list.Insert(0, $"{eaddr:X8} {lines.Count * 4:X8}");
+            list.Add($"D2000000 00000000");
 
             return list;
         }
