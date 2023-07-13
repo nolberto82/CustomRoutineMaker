@@ -26,15 +26,18 @@ namespace CustomRoutineMaker
             UpdateStatusBar();
 
             ar34 = new AR34();
-            systems = new List<SystemType>();
-            systems.Add(new SystemType("Playstation", "ps1", 0x80007600, 0x80000000));
-            systems.Add(new SystemType("Playstation 2", "ps2", 0x200a0000, 0x20000000));
-            systems.Add(new SystemType("Playstation Portable", "psp", 0x08801000, 0x00000000));
-            systems.Add(new SystemType("Nintendo 64", "n64", 0x80400000, 0x80000000));
-            systems.Add(new SystemType("Gameboy Advance", "gba", 0x0203ff00, 0x0203ff00));
-            systems.Add(new SystemType("Nintendo DS", "nds", 0x02000000, 0x02000000));
-            systems.Add(new SystemType("Nintendo Switch", "nds", 0x00000000, 0x00000000));
-            systems.Add(new SystemType("Generic", "gen", 0x00000000, 0x00000000));
+            systems = new List<SystemType>
+            {
+                new SystemType("Playstation", "ps1", 0x80007600, 0x80000000),
+                new SystemType("Playstation 2", "ps2", 0x200a0000, 0x20000000),
+                new SystemType("Playstation Portable", "psp", 0x08801000, 0x00000000),
+                new SystemType("Nintendo 64", "n64", 0x80400000, 0x80000000),
+                new SystemType("Gameboy Advance", "gba", 0x0203ff00, 0x0203ff00),
+                new SystemType("Nintendo DS", "nds", 0x02000000, 0x02000000),
+                new SystemType("Nintendo 3DS", "3ds", 0x00000000, 0x00000000),
+                new SystemType("Nintendo Switch", "nds", 0x00000000, 0x00000000),
+                new SystemType("Generic", "gen", 0x00000000, 0x00000000)
+            };
 
             foreach (SystemType s in systems)
             {
@@ -163,6 +166,8 @@ namespace CustomRoutineMaker
                         {
                         }
                         else if (system == "nds")
+                            textGS.Text = string.Join(Environment.NewLine, NDS.Run(data, 0x02000000 | addr, textAsm.Text));
+                        else if (system == "3ds")
                             textGS.Text = string.Join(Environment.NewLine, NDS.Run(data, addr, textAsm.Text));
                         else if (system == "nds" && name == "Nintendo Switch")
                             textGS.Text = string.Join(Environment.NewLine, SWI.Run(data, addr, textAsm.Text));
@@ -190,9 +195,6 @@ namespace CustomRoutineMaker
                                 textGS.Text += s;
 
                         }
-                        else if (system == "nds")
-                            textGS.Text = string.Join(Environment.NewLine, NDS.Run(data, addr, textAsm.Text));
-
 
                         //else if (system == "ps2")
                         //{
@@ -249,8 +251,8 @@ namespace CustomRoutineMaker
                 textAsm.Text = PS2.Initialize(addr, routine);
             else if (system == "gba")
                 textAsm.Text = GBA.Initialize(addr, routine);
-            else if (system == "nds")
-                textAsm.Text = NDS.Initialize(addr, routine);
+            else if (system == "nds" || system == "3ds")
+                textAsm.Text = NDS.Initialize(addr, routine, systems[comboBox1.SelectedIndex]);
 
             //addrtext = addr.ToString("X8");
             //sb.AppendLine("." + system);

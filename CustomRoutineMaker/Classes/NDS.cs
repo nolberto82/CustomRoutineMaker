@@ -9,18 +9,18 @@ namespace CustomRoutineMaker.Classes
 {
     internal class NDS
     {
-        public static string Initialize(uint addr, uint routine)
+        public static string Initialize(uint addr, uint routine, SystemType sys)
         {
             StringBuilder sb = new();
 
             //sb.AppendLine(@".create ""out.bin"", 0x" + addr.ToString("X8").PadLeft(8, '0'));
-            sb.AppendLine(@".nds");
+            sb.AppendLine($".{sys.shortname}");
             sb.AppendLine(@".create ""out.bin"", 0x00000000");
 
             sb.AppendLine("\n");
 
-            sb.AppendLine($".org\t0x02000000");
-            sb.AppendLine($"bl\t0x02000000");
+            sb.AppendLine($".org\t0x{sys.origaddr:X8}");
+            sb.AppendLine($"bl\t0x{sys.routine:X8}");
             sb.AppendLine();
 
             //    sb.AppendLine(@"bl" + "\t" + "0x" + routine.ToString("X8").PadLeft(8, '0'));
@@ -32,7 +32,7 @@ namespace CustomRoutineMaker.Classes
             sb.AppendLine($"//evalue:");
             sb.AppendLine($"//.dw\t 0x00000000\r\n");
 
-            sb.AppendLine($".org\t0x{addr:X8}");
+            sb.AppendLine($".org\t0x{sys.routine:X8}");
 
             sb.AppendLine("\n");
             sb.AppendLine("\n");
@@ -57,7 +57,7 @@ namespace CustomRoutineMaker.Classes
                 Buffer.BlockCopy(data, i * 4, value, 0, 4);
 
                 if (value[0] != 0)
-                    sb.AppendLine($"{0x02000000 | addr & 0xffffff:X8} {value[0]:X8}");
+                    sb.AppendLine($"{addr & 0xffffff:X8} {value[0]:X8}");
 
                 addr += 4;
             }
