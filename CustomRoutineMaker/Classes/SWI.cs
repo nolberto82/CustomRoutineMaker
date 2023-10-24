@@ -8,21 +8,19 @@ namespace CustomRoutineMaker.Classes
 {
     internal class SWI
     {
-        public static string Initialize(uint addr, uint routine)
+
+
+        public static string Initialize(uint addr, uint routine, string arch)
         {
             StringBuilder sb = new();
 
-            //sb.AppendLine(@".create ""out.bin"", 0x" + addr.ToString("X8").PadLeft(8, '0'));
-            sb.AppendLine(@".nds");
-            sb.AppendLine(@".create ""out.bin"", 0x00000000");
+            sb.AppendLine($"//.swi");
 
-            sb.AppendLine("\n");
+            sb.AppendLine("");
 
             sb.AppendLine($".org\t0x00000000");
             sb.AppendLine($"bl\t0x00000000");
             sb.AppendLine();
-
-            //    sb.AppendLine(@"bl" + "\t" + "0x" + routine.ToString("X8").PadLeft(8, '0'));
 
             sb.AppendLine("");
 
@@ -31,15 +29,14 @@ namespace CustomRoutineMaker.Classes
             sb.AppendLine($"//evalue:");
             sb.AppendLine($"//.dw\t 0x00000000\r\n");
 
-            sb.AppendLine($".org\t0x{addr:X8}");
+            sb.AppendLine($".org\t0x00000000");
+            sb.AppendLine($"main:");
 
             sb.AppendLine("\n");
             sb.AppendLine("\n");
             sb.AppendLine("\n");
 
-            sb.AppendLine($"bx\tlr");
-
-            sb.AppendLine(".close");
+            sb.AppendLine($"ret\n");
 
             return sb.ToString();
         }
@@ -49,39 +46,84 @@ namespace CustomRoutineMaker.Classes
             List<string> list = new();
             StringBuilder sb = new();
 
-            for (int i = 0; i < data.Length / 4; i++)
+            int size = 4;
+            for (int i = 0; i < data.Length; i += size)
             {
-                int[] value = new int[1];
-                Buffer.BlockCopy(data, i * 4, value, 0, 4);
+                if (i + 4 > data.Length)
+                    break;
 
-                if (value[0] != 0)
-                    sb.Append($"04000000 {addr & 0xffffff:X8} {value[0]:X8}\n");
+                int[] lo = new int[1];
 
-                addr += 4;
+                Buffer.BlockCopy(data, i, lo, 0, size);
+
+                if (lo[0] != 0)
+                {
+                    sb.Append($"04000000 {addr & 0xfffffff:X8} " +
+                        $"{lo[0]:X8}\n");
+                }
+
+                addr += (uint)size;
             }
 
             bool isthumb = asm.IndexOf(".thumb") > -1 ? true : false;
-            var lines = sb.ToString().Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-            var bl = lines[lines.Count - 1];
-            var bra = Convert.ToUInt32(lines[0].Substring(18, 8), 16);
-            if ((bra & 0xff00) >= 0xf000 || (bra >> 24) == 0xeb)
+            var temp = sb.ToString().Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            List<string> bl = new();
+            for (int k = temp.Count - 1; k >= 0; k--)
             {
-                bl = lines[0];
-                lines.RemoveAt(0);
+                var bra = Convert.ToUInt32(temp[k].Substring(18, 8), 16);
+                if ((bra >> 24) == 0xeb || (bra >> 24) == 0x94)
+                {
+                    bl.Add(temp[k]);
+                    temp.RemoveAt(k);
+                }
             }
-            else
-                lines.RemoveAt(lines.Count - 1);
 
-            //lines = lines.Select(l => l.Substring(11, 10)).ToList();
+            //temp.Add(bl);
+            temp.Add("");
 
-            //if ((lines.Count % 2) > 0)
-            //    lines.Add("0x00000000");
+            List<string> lines = new();
+            List<string> values = new();
+            List<string> bytes = new();
 
-            //for (int i = 0; i < lines.Count; i += 2)
-            //    list.Add($"{lines[i]} {lines[i + 1]}\r\n");
+            for (int k = 0; k < bl.Count; k++)
+            {
+                bl[k] = bl[k].Replace(" ", "");
+                lines.Add($"04000000 {bl[k].Substring(8, 8)} {bl[k].Substring(16, 8)}");
+            }
 
-            lines.Add(bl);
+            for (int i = 0; i < temp.Count; i += 2)
+            {
+                if (temp[i] == "")
+                    continue;
 
+                var v1 = temp[i + 0].Replace(" ", "");
+                var v2 = temp[i + 1].Replace(" ", "");
+                if (v2 != string.Empty)
+                    lines.Add($"08000000 {v1.Substring(8, 8)} {v2.Substring(16, 8)} {v1.Substring(16, 8)}");
+                else
+                    lines.Add($"04000000 {v1.Substring(8, 8)} {v1.Substring(16, 8)}");
+            }
+
+            lines.Add("");
+
+            var gdblines = lines.ToArray();
+            for (int k = 0; k < bl.Count; k++)
+                lines.Add($"set *($g+0x{bl[k].Substring(8, 8)})=0x{bl[k].Substring(16, 8)}");
+
+
+            for (int i = bl.Count; i < gdblines.Length; i++)
+            {
+                if (gdblines[i] == "")
+                    continue;
+
+                var l = gdblines[i + 0].Replace(" ", "");
+
+                if (l.Length == 32)
+                    lines.Add($"set *(char**)($g+0x{l.Substring(8, 8)})=0x{l.Substring(16, 16)}");
+                else
+                    lines.Add($"set *($g+0x{l.Substring(8, 8)})=0x{l.Substring(16, 8)}");
+
+            }
             return lines;
         }
     }

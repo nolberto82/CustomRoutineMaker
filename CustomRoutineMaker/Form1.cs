@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.DirectoryServices;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -35,7 +36,8 @@ namespace CustomRoutineMaker
                 new SystemType("Gameboy Advance", "gba", 0x0203ff00, 0x0203ff00),
                 new SystemType("Nintendo DS", "nds", 0x02000000, 0x02000000),
                 new SystemType("Nintendo 3DS", "3ds", 0x00000000, 0x00000000),
-                new SystemType("Nintendo Switch", "nds", 0x00000000, 0x00000000),
+                new SystemType("Nintendo Switch 32", "swi32", 0x00000000, 0x00000000),
+                new SystemType("Nintendo Switch 64", "swi", 0x80000000, 0x80000000),
                 new SystemType("Generic", "gen", 0x00000000, 0x00000000)
             };
 
@@ -72,6 +74,14 @@ namespace CustomRoutineMaker
                 {
                     index = textAsm.Text.IndexOf(fileout);
 
+                    while (textAsm.Text[index] != 'x')
+                        index++;
+
+                    addrtext = textAsm.Text.Substring(index + 1, 8);
+                }
+                else if (textAsm.Text.Contains("//.swi"))
+                {
+                    index = 0;
                     while (textAsm.Text[index] != 'x')
                         index++;
 
@@ -114,116 +124,159 @@ namespace CustomRoutineMaker
             }
         }
 
-        private void textAsm_TextChanged(object sender, EventArgs e)
-        {
-            UpdateStatusBar();
-        }
+        private void textAsm_TextChanged(object sender, EventArgs e) => UpdateStatusBar();
 
         private void btnAssemble_Click(object sender, EventArgs e)
         {
+            SaveFile();
+
+            if (asm_filename == "" || asm_filename == null)
+            {
+                MessageBox.Show("No ASM File loaded", "Error");
+                return;
+            }
+
             if (textAsm.Text != "")
             {
-                SaveFile();
+                string exename = "armips.exe";
+                if (systems[comboBox1.SelectedIndex].shortname == "swi")
+                    exename = "aarch64-none-elf-as.exe";
 
                 ProcessStartInfo app = new ProcessStartInfo();
                 app.WorkingDirectory = Environment.CurrentDirectory;
-                app.FileName = "armips.exe";
+                app.FileName = exename;
                 app.Arguments = asm_filename;
                 app.UseShellExecute = false;
                 app.RedirectStandardOutput = true;
+                app.RedirectStandardError = true;
                 app.CreateNoWindow = true;
 
                 using (Process process = Process.Start(app))
                 {
                     using (StreamReader sr = process.StandardOutput)
                         textGS.Text = sr.ReadToEnd();
-
-                    if (textGS.Text == "")
-                    {
-                        StringBuilder sb = new StringBuilder();
-                        StringBuilder sb2 = new StringBuilder();
-                        byte[] data = File.ReadAllBytes("out.bin");
-                        string system = systems[comboBox1.SelectedIndex].shortname;
-                        string name = systems[comboBox1.SelectedIndex].name;
-                        uint addr = 0;
-
-                        int pos = textAsm.Text.LastIndexOf(".definelabel");
-
-                        if (pos > -1)
-                        {
-                            while (textAsm.Text[pos] != '0')
-                                pos++;
-
-                            var str = textAsm.Text.Substring(pos).Trim().Split("\r");
-                            if (str.Length > 0)
-                                addr = Convert.ToUInt32(str[0], 16);
-                        }
-
-                        if (system == "psx")
-                        {
-                        }
-                        else if (system == "n64")
-                        {
-                        }
-                        else if (system == "nds")
-                            textGS.Text = string.Join(Environment.NewLine, NDS.Run(data, 0x02000000 | addr, textAsm.Text));
-                        else if (system == "3ds")
-                            textGS.Text = string.Join(Environment.NewLine, NDS.Run(data, addr, textAsm.Text));
-                        else if (system == "nds" && name == "Nintendo Switch")
-                            textGS.Text = string.Join(Environment.NewLine, SWI.Run(data, addr, textAsm.Text));
-                        else if (system == "psp")
-                            textGS.Text = string.Join(Environment.NewLine, PSP.Run(data, addr, textAsm.Text));
-                        else if (system == "ps2")
-                            textGS.Text = string.Join(Environment.NewLine, PS2.Run(data, addr, textAsm.Text));
-                        else if (system == "gba")
-                        {
-                            (List<string> ARcodes, List<string> Rawcodes, List<string> Bytes) = GBA.Run(data, addr, textAsm.Text);
-                            textGS.Text = string.Join(Environment.NewLine, ARcodes);
-                            textGS.Text += "\r\n\r\n";
-                            int c = 0;
-                            foreach (var s in Rawcodes)
-                            {
-                                c++;
-                                if (c == Rawcodes.Count)
-                                    textGS.Text += $"{s}";
-                                else
-                                    textGS.Text += $"{s}+\r\n";
-                            }
-
-                            textGS.Text += "\r\n\r\n";
-                            foreach (var s in Bytes)
-                                textGS.Text += s;
-
-                        }
-
-                        //else if (system == "ps2")
-                        //{
-                        //textGS.Text = string.Join(Environment.NewLine, PS2.Run(data, addr, textAsm.Text));
-                        //sb2.AppendLine("patch=1,EE," + (addr + 0).ToString("X4") + ",extended," + (number[0]).ToString("X8"));
-                        //sb.AppendLine((addr + 0).ToString("X4") + " " + (number[0]).ToString("X8"));
-                        //}
-
-                        //addr += 4;
-                        //}
-                        //if (system == "gba")
-                        //textGS.Text += CreateGBACodes(data);
-                        //else if (system == "psp" || system == "ps2")
-                        //{
-                        //textGS.Text += sb2.ToString();
-                        //textGS.Text += "\r\n";
-                        //textGS.Text += sb.ToString();
-                        // }
-                        //else
-                        //    textGS.Text = sb.ToString();
-                    }
+                    using (StreamReader sr = process.StandardError)
+                        textGS.Text += sr.ReadToEnd();
                 }
-
-                if (File.Exists("out.bin"))
-                    File.Delete("out.bin");
             }
 
-            else
-                MessageBox.Show("No ASM File loaded", "Error");
+
+            if (systems[comboBox1.SelectedIndex].shortname == "swi")
+            {
+                ProcessStartInfo appobjcopy = new ProcessStartInfo()
+                {
+                    WorkingDirectory = Environment.CurrentDirectory,
+                    FileName = "aarch64-none-elf-objcopy.exe",
+                    Arguments = "-O binary a.out out.bin",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = true,
+                };
+                using (Process processobjcopy = Process.Start(appobjcopy))
+                {
+                    using (StreamReader sr = processobjcopy.StandardOutput)
+                        textGS.Text += sr.ReadToEnd();
+                }
+            }
+
+            if (textGS.Text == "")
+            {
+                StringBuilder sb = new StringBuilder();
+                StringBuilder sb2 = new StringBuilder();
+                byte[] data = null;
+                if (File.Exists("out.bin"))
+                    data = File.ReadAllBytes("out.bin");
+                else
+                {
+                    DeleteTempFiles();
+                    return;
+                }
+
+                string system = systems[comboBox1.SelectedIndex].shortname;
+                string name = systems[comboBox1.SelectedIndex].name;
+                uint addr = 0;
+
+                int pos = textAsm.Text.LastIndexOf(".definelabel");
+
+                if (pos > -1)
+                {
+                    while (textAsm.Text[pos] != '0')
+                        pos++;
+
+                    var str = textAsm.Text.Substring(pos).Trim().Split("\r");
+                    if (str.Length > 0)
+                        addr = Convert.ToUInt32(str[0], 16);
+                }
+
+                if (system == "psx")
+                {
+                }
+                else if (system == "n64")
+                {
+                }
+                else if (system == "nds")
+                {
+                    if (name == "Nintendo Switch")
+                        textGS.Text = string.Join(Environment.NewLine, SWI.Run(data, addr, textAsm.Text));
+                    else
+                        textGS.Text = string.Join(Environment.NewLine, NDS.Run(data, 0x02000000 | addr, textAsm.Text));
+                }
+                else if (system == "3ds")
+                    textGS.Text = string.Join(Environment.NewLine, NDS.Run(data, addr, textAsm.Text));
+                else if (system == "swi")
+                    textGS.Text = string.Join(Environment.NewLine, SWI.Run(data, addr, textAsm.Text));
+                else if (system == "psp")
+                    textGS.Text = string.Join(Environment.NewLine, PSP.Run(data, addr, textAsm.Text));
+                else if (system == "ps2")
+                    textGS.Text = string.Join(Environment.NewLine, PS2.Run(data, addr, textAsm.Text));
+                else if (system == "gba")
+                {
+                    (List<string> ARcodes, List<string> Rawcodes, List<string> Bytes) = GBA.Run(data, addr, textAsm.Text);
+                    textGS.Text = string.Join(Environment.NewLine, ARcodes);
+                    textGS.Text += "\r\n\r\n";
+                    int c = 0;
+                    foreach (var s in Rawcodes)
+                    {
+                        c++;
+                        if (c == Rawcodes.Count)
+                            textGS.Text += $"{s}";
+                        else
+                            textGS.Text += $"{s}+\r\n";
+                    }
+
+                    textGS.Text += "\r\n\r\n";
+                    foreach (var s in Bytes)
+                        textGS.Text += s;
+
+                }
+
+                //else if (system == "ps2")
+                //{
+                //textGS.Text = string.Join(Environment.NewLine, PS2.Run(data, addr, textAsm.Text));
+                //sb2.AppendLine("patch=1,EE," + (addr + 0).ToString("X4") + ",extended," + (number[0]).ToString("X8"));
+                //sb.AppendLine((addr + 0).ToString("X4") + " " + (number[0]).ToString("X8"));
+                //}
+
+                //addr += 4;
+                //}
+                //if (system == "gba")
+                //textGS.Text += CreateGBACodes(data);
+                //else if (system == "psp" || system == "ps2")
+                //{
+                //textGS.Text += sb2.ToString();
+                //textGS.Text += "\r\n";
+                //textGS.Text += sb.ToString();
+                // }
+                //else
+                //    textGS.Text = sb.ToString();
+                DeleteTempFiles();
+            }
+        }
+
+        private void DeleteTempFiles()
+        {
+            if (File.Exists("out.bin"))
+                File.Delete("out.bin");
         }
 
         private void textAsm_Click(object sender, EventArgs e)
@@ -253,53 +306,8 @@ namespace CustomRoutineMaker
                 textAsm.Text = GBA.Initialize(addr, routine);
             else if (system == "nds" || system == "3ds")
                 textAsm.Text = NDS.Initialize(addr, routine, systems[comboBox1.SelectedIndex]);
-
-            //addrtext = addr.ToString("X8");
-            //sb.AppendLine("." + system);
-
-            ////sb.AppendLine(@".create ""out.bin"", 0x" + addr.ToString("X8").PadLeft(8, '0'));
-            //sb.AppendLine(@".create ""out.bin"", 0x00000000");
-
-            //sb.AppendLine("\n");
-
-            //if (system == "gba")
-            //{
-            //    sb.AppendLine(@".org" + "\t" + "0x" + addrtext.PadLeft(8, '0'));
-            //    sb.AppendLine(@"ldr" + "\t" + "r0,=0x" + routine.ToString("X8").PadLeft(8, '0'));
-            //    sb.AppendLine(@"bx" + "\t" + "r0");
-            //    sb.AppendLine(@".pool");
-            //}
-            //else if (system == "nds")
-            //{
-            //    sb.AppendLine(@".org" + "\t" + "0x" + addr.ToString("X8").PadLeft(8, '0'));
-            //    sb.AppendLine(@"bl" + "\t" + "0x" + routine.ToString("X8").PadLeft(8, '0'));
-            //    //sb.AppendLine(@".pool");
-            //}
-            //else
-            //{
-            //    sb.AppendLine(@".org" + "\t" + "0x" + addrtext.PadRight(8, '0'));
-            //    sb.AppendLine(@"j" + "\t" + "0x" + routine.ToString("X8").PadLeft(8, '0'));
-            //}
-
-            //sb.AppendLine("\n");
-
-            //sb.AppendLine(@".org" + "\t" + "0x" + routine.ToString("X8").PadLeft(8, '0'));
-
-            //sb.AppendLine("\n");
-            //sb.AppendLine("\n");
-            //sb.AppendLine("\n");
-
-            //if (system == "gba")
-            //    sb.AppendLine(@"bx" + "\t" + "r0");
-            //else if (system == "nds")
-            //    sb.AppendLine(@"bx" + "\t" + "r14");
-            //else
-            //    sb.AppendLine(@"j" + "\t" + "0x" + (routine + 8).ToString("X8").PadLeft(8, '0'));
-
-            //if (system == "gba" || system == "nds")
-            //    sb.AppendLine(@".pool");
-
-            //sb.AppendLine(".close");
+            else if (system == "swi")
+                textAsm.Text = SWI.Initialize(addr, routine, system);
 
             asm_filename = "";
         }

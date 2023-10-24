@@ -13,6 +13,12 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <None Update="Assemblers\aarch64-none-elf-as.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assemblers\aarch64-none-elf-objcopy.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="CustomRoutineMaker.dll.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

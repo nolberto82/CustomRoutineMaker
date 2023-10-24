@@ -51,13 +51,13 @@ namespace CustomRoutineMaker.Classes
             StringBuilder sb = new();
             uint function = addr;
 
-            for (int i = 0; i < data.Length / 4; i++)
+            for (int i = 0; i < data.Length; i += 4)
             {
                 int[] value = new int[1];
-                Buffer.BlockCopy(data, i * 4, value, 0, 4);
+                Buffer.BlockCopy(data, i, value, 0, 4);
 
                 if (value[0] != 0)
-                    sb.AppendLine($"{addr & 0xffffff:X8} {value[0]:X8}");
+                    sb.AppendLine($"{i & 0xfffffff:X8} {value[0]:X8}");
 
                 addr += 4;
             }
@@ -85,15 +85,23 @@ namespace CustomRoutineMaker.Classes
 
             int index = asm.IndexOf("//ecode:");
             int eaddr = 0;
+            int evalue = 0;
             if (index > 0)
             {
                 while (asm[index] != 'x')
                     index++;
 
                 eaddr = Convert.ToInt32(asm.Substring(index + 1, 8), 16);
+
+                index = asm.IndexOf("//evalue:");
+
+                while (asm[index] != 'x')
+                    index++;
+
+                evalue = Convert.ToInt32(asm.Substring(index + 1, 8), 16);
             }
 
-
+            list.Add($"5{bl[0].Substring(1,7):X8} {evalue:X8}");
             list.AddRange(bl);
             list.Insert(0, $"{eaddr:X8} {lines.Count * 4:X8}");
             list.Add($"D2000000 00000000");
