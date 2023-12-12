@@ -73,8 +73,9 @@ namespace CustomRoutineMaker.Classes
                     foreach (string st in code)
                         list.Add(st);
 
-                    for (int j = 0; j < enc.Count; j += 2)
-                        unlist.Add($"{enc[j]} {enc[j + 1]}");
+                    //for (int j = 0; j < enc.Count; j += 2)
+                        unlist.Add($"patch_dword(0x{addr:X8},0x{value[0]:X8})");
+                    //unlist.Add($"{enc[j]} {enc[j + 1]}");
 
                     if (codetype == 8 && !branch)
                     {

@@ -241,7 +241,7 @@ namespace CustomRoutineMaker
                         if (c == Rawcodes.Count)
                             textGS.Text += $"{s}";
                         else
-                            textGS.Text += $"{s}+\r\n";
+                            textGS.Text += $"{s}\r\n";
                     }
 
                     textGS.Text += "\r\n\r\n";

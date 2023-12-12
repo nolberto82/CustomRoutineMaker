@@ -115,12 +115,12 @@ namespace CustomRoutineMaker.Classes
             {
                 if (lines[i].StartsWith('\r') || lines[i].StartsWith("\r\n"))
                 {
-                    list.Add("\r\r");
+                    list.Add(" ");
                     continue;
                 }
 
                 if (lines[i].Substring(0, 2) == "_C")
-                    list.Add(lines[i].Substring(3, lines[i].Length - 3).TrimStart());
+                    list.Add(lines[i].Substring(3, lines[i].Length - 3).TrimStart().Replace("\r", ""));
                 else
                 {
                     lines[i] = lines[i].ToUpper().Replace("X", "x").Replace("\r", "");

@@ -106,6 +106,31 @@ namespace CustomRoutineMaker.Classes
 
             lines.Add("");
 
+            var idalines = lines.ToArray();
+            for (int k = 0; k < bl.Count; k++)
+                lines.Add($"patch_dword(0x8{bl[k].Substring(9, 7)}+0x4000,0x{bl[k].Substring(16, 8)})");
+
+
+            for (int i = bl.Count; i < idalines.Length; i++)
+            {
+                if (idalines[i] == "")
+                    continue;
+
+                var l = idalines[i].Replace(" ", "");
+
+                if (l.Length == 32)
+                {
+                    lines.Add($"patch_dword(0x8{l.Substring(9, 7)}+0x4000,0x{l.Substring(24, 8)})");
+                    var a = Convert.ToInt32(l.Substring(8, 8), 16) + 4;
+                    lines.Add($"patch_dword(0x8{a.ToString("X8").Substring(1, 7)}+0x4000,0x{l.Substring(16, 8)})");
+                }
+                else
+                    lines.Add($"patch_dword(0x8{l.Substring(9, 7)}+0x4000,0x{l.Substring(16, 8)})");
+
+            }
+
+            lines.Add("");
+
             var gdblines = lines.ToArray();
             for (int k = 0; k < bl.Count; k++)
                 lines.Add($"set *($g+0x{bl[k].Substring(8, 8)})=0x{bl[k].Substring(16, 8)}");
