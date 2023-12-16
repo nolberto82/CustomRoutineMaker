@@ -126,7 +126,6 @@ namespace CustomRoutineMaker.Classes
                     lines[i] = lines[i].ToUpper().Replace("X", "x").Replace("\r", "");
                     list.Add(lines[i].Substring(2, lines[i].Length - 2).TrimStart());
                 }
-
             }
 
             return list;
