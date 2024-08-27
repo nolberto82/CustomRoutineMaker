@@ -1,0 +1,20 @@
+.psp
+.create "out.bin", 0x00000000
+
+
+.org	0x09911f34
+j	0x08801000
+
+
+.org	0x08801000
+
+
+lui	a0,0x4000
+sw	a0,0x84(s1)
+
+lui	a0,0xbf80
+sw	a0,0x88(s1)
+
+swc1	f12,0xbc(sp)
+j	0x09911f3c
+.close

@@ -1,0 +1,24 @@
+.ps2
+.create "out.bin", 0x20000000
+
+
+.org	0x2043c2ec
+j	0x200a0000
+
+
+.org	0x200a0000
+
+
+lui	v0,0x007c
+lhu	v0,0xa844(v0)
+andi	v0,0x0040
+beq	v0,zero,end
+li	v1,0x10
+sh	v1,0x1a(s0)
+
+end:
+ld	v1,0x18(s0)
+lui	v0,0x0010
+j	0x2043c2f4
+
+.close

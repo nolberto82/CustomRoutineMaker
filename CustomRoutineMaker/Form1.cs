@@ -29,7 +29,7 @@ namespace CustomRoutineMaker
             ar34 = new AR34();
             systems = new List<SystemType>
             {
-                new SystemType("Playstation", "ps1", 0x80007600, 0x80000000),
+                new SystemType("Playstation", "psx", 0x80007600, 0x80000000),
                 new SystemType("Playstation 2", "ps2", 0x200a0000, 0x20000000),
                 new SystemType("Playstation Portable", "psp", 0x08801000, 0x00000000),
                 new SystemType("Nintendo 64", "n64", 0x80400000, 0x80000000),
@@ -196,21 +196,19 @@ namespace CustomRoutineMaker
                 string name = systems[comboBox1.SelectedIndex].name;
                 uint addr = 0;
 
-                int pos = textAsm.Text.LastIndexOf(".definelabel");
+                //int pos = textAsm.Text.LastIndexOf(".definelabel");
+                //if (pos > -1)
+                //{
+                //    while (textAsm.Text[pos] != '0')
+                //        pos++;
 
-                if (pos > -1)
-                {
-                    while (textAsm.Text[pos] != '0')
-                        pos++;
-
-                    var str = textAsm.Text.Substring(pos).Trim().Split("\r");
-                    if (str.Length > 0)
-                        addr = Convert.ToUInt32(str[0], 16);
-                }
+                //    var str = textAsm.Text.Substring(pos).Trim().Split("\r");
+                //    if (str.Length > 0)
+                //        addr = Convert.ToUInt32(str[0], 16);
+                //}
 
                 if (system == "psx")
-                {
-                }
+                    textGS.Text = string.Join(Environment.NewLine, PS1.Run(data, addr, textAsm.Text));
                 else if (system == "n64")
                 {
                 }
@@ -300,6 +298,8 @@ namespace CustomRoutineMaker
 
             if (system == "psp")
                 textAsm.Text = PSP.Initialize(addr, routine);
+            else if (system == "psx")
+                textAsm.Text = PS1.Initialize(addr, routine);
             else if (system == "ps2")
                 textAsm.Text = PS2.Initialize(addr, routine);
             else if (system == "gba")
@@ -314,10 +314,10 @@ namespace CustomRoutineMaker
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            if (!File.Exists("armips.exe"))
+            if (!File.Exists($"Assemblers/armips.exe"))
             {
                 MessageBox.Show("You need the armips assembler", "Error");
-                this.Close();
+                Close();
             }
         }
 

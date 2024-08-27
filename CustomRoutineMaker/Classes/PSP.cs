@@ -19,26 +19,28 @@ namespace CustomRoutineMaker.Classes
             //sb.AppendLine(@".create ""out.bin"", 0x" + addr.ToString("X8").PadLeft(8, '0'));
             sb.AppendLine(@".psp");
             sb.AppendLine(@".create ""out.bin"", 0x00000000");
+            sb.AppendLine(@".definelabel hook, 0x08800000");
+            sb.AppendLine(@".definelabel function, 0x08801000");
 
-            sb.AppendLine("\n");
+            sb.AppendLine("");
 
-            sb.AppendLine($".org\t 0x08800000");
-            sb.AppendLine($"j\t 0x08801000");
+            sb.AppendLine($".org\thook");
+            sb.AppendLine($"j\tfunction");
 
             sb.AppendLine("");
 
             sb.AppendLine($"//ecode:");
             sb.AppendLine($"//.dw\t 0xe0000000");
             sb.AppendLine($"//evalue:");
-            sb.AppendLine($"//.dw\t 0x00000000\r\n");
+            sb.AppendLine($"//.dw\t0x00000000\r\n");
 
-            sb.AppendLine($".org\t 0x08801000");
+            sb.AppendLine($".org\tfunction");
 
-            sb.AppendLine("\n");
-            sb.AppendLine("\n");
-            sb.AppendLine("\n");
+            sb.AppendLine("");
+            sb.AppendLine("");
+            sb.AppendLine("");
 
-            sb.AppendLine($"j\t 0x08801008");
+            sb.AppendLine($"j\thook+8");
 
             sb.AppendLine(".close");
 
@@ -107,9 +109,13 @@ namespace CustomRoutineMaker.Classes
         public static List<string> ConvertToGHFormat(string[] lines)
         {
             List<string> list = new();
+            List<string> pspaddrs = new();
+
 
             if (lines.Length == 0 || lines[0] == "" || lines == null)
                 return list;
+
+            bool cwcheat = lines[0].Contains("_L");
 
             for (int i = 0; i < lines.Length; i++)
             {
@@ -123,10 +129,26 @@ namespace CustomRoutineMaker.Classes
                     list.Add(lines[i].Substring(3, lines[i].Length - 3).TrimStart().Replace("\r", ""));
                 else
                 {
-                    lines[i] = lines[i].ToUpper().Replace("X", "x").Replace("\r", "");
-                    list.Add(lines[i].Substring(2, lines[i].Length - 2).TrimStart());
+                    lines[i] = lines[i].ToUpper().Replace("X", "x").Replace("\r", "").Replace("_L ", "");
+                    var a = lines[i].TrimStart().Split(" ");
+                    var v = Convert.ToInt32(a[0], 16);
+                    if (((v >> 24) & 0xf) >= 8)
+                    {
+                        lines[i] = $"_L 0x{v - 0x08800000 | 0x20000000:X8} ";
+                        lines[i] += $"0x{a[1]}";
+                    }
+
+                    pspaddrs.Add($"0x{v + 0x08800000 & 0xfffffff:X8} {a[1]}");
+
+                    if (cwcheat)
+                        list.Add(lines[i]);
+                    else
+                        list.Add($"_L {lines[i]}");
                 }
             }
+
+            list.Add("");
+            list.AddRange(pspaddrs);
 
             return list;
         }
