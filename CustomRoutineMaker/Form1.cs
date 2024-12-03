@@ -19,6 +19,8 @@ namespace CustomRoutineMaker
         string addrtext;
         AR34 ar34;
 
+        string AssemblersDir = "Assemblers";
+
         List<SystemType> systems;
         public Form1()
         {
@@ -138,9 +140,9 @@ namespace CustomRoutineMaker
 
             if (textAsm.Text != "")
             {
-                string exename = "armips.exe";
+                string exename = $"{AssemblersDir}/armips.exe";
                 if (systems[comboBox1.SelectedIndex].shortname == "swi")
-                    exename = "aarch64-none-elf-as.exe";
+                    exename = $"{AssemblersDir}/aarch64-none-elf-as.exe";
 
                 ProcessStartInfo app = new ProcessStartInfo();
                 app.WorkingDirectory = Environment.CurrentDirectory;
@@ -314,7 +316,7 @@ namespace CustomRoutineMaker
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            if (!File.Exists($"Assemblers/armips.exe"))
+            if (!File.Exists($"{AssemblersDir}/armips.exe"))
             {
                 MessageBox.Show("You need the armips assembler", "Error");
                 Close();
@@ -336,6 +338,8 @@ namespace CustomRoutineMaker
 
                     for (int i = 0; i < codes.Count(); i++)
                     {
+                        if (codes[i] == string.Empty)
+                            continue;
                         var s = codes[i].Replace(" ", "");
                         int c = Convert.ToInt32(s.Substring(0, 8), 16) >> 24;
                         int addr = 0;

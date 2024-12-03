@@ -137,13 +137,15 @@ namespace CustomRoutineMaker.Classes
                         lines[i] = $"_L 0x{v - 0x08800000 | 0x20000000:X8} ";
                         lines[i] += $"0x{a[1]}";
                     }
+                    else if (lines[i].Substring(0, 2) == "_L")
+                        lines[i] = $"_L 0x{lines[i][..8]} 0x{lines[i][9..]}";
 
                     pspaddrs.Add($"0x{v + 0x08800000 & 0xfffffff:X8} {a[1]}");
 
                     if (cwcheat)
-                        list.Add(lines[i]);
-                    else
                         list.Add($"_L {lines[i]}");
+                    else
+                        list.Add($"{lines[i]}");
                 }
             }
 

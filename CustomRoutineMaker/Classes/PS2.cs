@@ -15,27 +15,27 @@ namespace CustomRoutineMaker.Classes
 
             //sb.AppendLine(@".create ""out.bin"", 0x" + addr.ToString("X8").PadLeft(8, '0'));
             sb.AppendLine(@".ps2");
-            sb.AppendLine(@".create ""out.bin"", 0x00000000");
+            sb.AppendLine(@".create ""out.bin"", 0x20000000");
 
             sb.AppendLine("\n");
 
-            sb.AppendLine($".org\t 0x20000000");
-            sb.AppendLine($"j\t 0x200A0000");
+            sb.AppendLine($".org\t0x20000000");
+            sb.AppendLine($"j\t0x200A0000");
 
             sb.AppendLine("");
 
             sb.AppendLine($"//ecode:");
-            sb.AppendLine($"//.dw\t 0xe0000000");
+            sb.AppendLine($"//.dw\t0xe0000000");
             sb.AppendLine($"//evalue:");
-            sb.AppendLine($"//.dw\t 0x00000000\r\n");
+            sb.AppendLine($"//.dw\t0x00000000\r\n");
 
-            sb.AppendLine($".org\t 0x200A0000");
+            sb.AppendLine($".org\t0x200A0000");
 
             sb.AppendLine("\n");
             sb.AppendLine("\n");
             sb.AppendLine("\n");
 
-            sb.AppendLine($"j\t 0x200A0008");
+            sb.AppendLine($"j\t0x200A0008");
 
             sb.AppendLine(".close");
 
@@ -46,6 +46,7 @@ namespace CustomRoutineMaker.Classes
         {
             List<string> list = new();
             StringBuilder[] sb = new StringBuilder[2];
+            const int entry = 0x20000000;
             sb[0] = new();
             sb[1] = new();
             int linesnum = 0;
@@ -60,8 +61,8 @@ namespace CustomRoutineMaker.Classes
 
                 if (value[0] != 0 && (value[0] & 0xffff0000) != 0xe0000000)
                 {
-                    sb[0].Append($"patch=1,EE,{addr:X8},extended,{value[0]:X8}\r\n");
-                    sb[1].Append($"{addr:X8} {value[0]:X8}\r\n");
+                    sb[0].Append($"patch=1,EE,{entry | addr:X8},extended,{value[0]:X8}\r\n");
+                    sb[1].Append($"{entry | addr:X8} {value[0]:X8}\r\n");
                     linesnum++;
                 }
                 addr += 4;

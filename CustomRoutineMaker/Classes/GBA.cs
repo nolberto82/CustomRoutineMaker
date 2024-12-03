@@ -110,8 +110,9 @@ namespace CustomRoutineMaker.Classes
 
                 if (s.Length < 12)
                 {
-                    list.Add($"{""}");
-                    continue;
+                    //list.Add($"{""}");
+                    //continue;
+                    s = s.PadLeft(12, '0');
                 }
 
                 string[] words = GetWords(s);

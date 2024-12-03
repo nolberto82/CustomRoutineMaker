@@ -48,7 +48,6 @@ namespace CustomRoutineMaker.Classes
             StringBuilder sb = new();
             sb = new();
             int linesnum = 0;
-            int size = 2;
 
             for (int i = 0; i < data.Length / 4; i++)
             {
