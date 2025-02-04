@@ -41,7 +41,7 @@ namespace CustomRoutineMaker.Classes
             return sb.ToString();
         }
 
-        public static List<string> Run(byte[] data, uint addr, string asm)
+        public static List<string> Run(byte[] data, uint addr, string asm, bool is64)
         {
             List<string> list = new();
             StringBuilder sb = new();
@@ -70,8 +70,8 @@ namespace CustomRoutineMaker.Classes
             List<string> bl = new();
             for (int k = temp.Count - 1; k >= 0; k--)
             {
-                var bra = Convert.ToUInt32(temp[k].Substring(18, 8), 16);
-                if ((bra >> 24) == 0xeb || (bra >> 24) == 0x94)
+                var bra = Convert.ToUInt32(temp[k].Substring(18, 8), 16) >> 24;
+                if ((!is64 && (bra == 0xeb) || (bra == 0x14 || bra == 0x15 || bra == 0x94 || (bra == 0x95))))
                 {
                     bl.Add(temp[k]);
                     temp.RemoveAt(k);
@@ -105,27 +105,28 @@ namespace CustomRoutineMaker.Classes
             }
 
             lines.Add("");
+            lines.Add("base=0x");
 
             var idalines = lines.ToArray();
             for (int k = 0; k < bl.Count; k++)
-                lines.Add($"patch_dword(0x8{bl[k].Substring(9, 7)}+0x4000,0x{bl[k].Substring(16, 8)})");
+                lines.Add($"patch_dword(base+0x0{bl[k].Substring(9, 7)},0x{bl[k].Substring(16, 8)})");
 
 
             for (int i = bl.Count; i < idalines.Length; i++)
             {
-                if (idalines[i] == "")
+                if (idalines[i] == "" || idalines[i] == "base=0x")
                     continue;
 
                 var l = idalines[i].Replace(" ", "");
 
                 if (l.Length == 32)
                 {
-                    lines.Add($"patch_dword(0x8{l.Substring(9, 7)}+0x4000,0x{l.Substring(24, 8)})");
+                    lines.Add($"patch_dword(base+0x0{l.Substring(9, 7)},0x{l.Substring(24, 8)})");
                     var a = Convert.ToInt32(l.Substring(8, 8), 16) + 4;
-                    lines.Add($"patch_dword(0x8{a.ToString("X8").Substring(1, 7)}+0x4000,0x{l.Substring(16, 8)})");
+                    lines.Add($"patch_dword(base+0x0{a.ToString("X8").Substring(1, 7)},0x{l.Substring(16, 8)})");
                 }
                 else
-                    lines.Add($"patch_dword(0x8{l.Substring(9, 7)}+0x4000,0x{l.Substring(16, 8)})");
+                    lines.Add($"patch_dword(base+0x0{l.Substring(9, 7)},0x{l.Substring(16, 8)})");
 
             }
 
@@ -138,7 +139,7 @@ namespace CustomRoutineMaker.Classes
 
             for (int i = bl.Count; i < gdblines.Length; i++)
             {
-                if (gdblines[i] == "")
+                if (gdblines[i] == "" || gdblines[i] == "base=0x")
                     continue;
 
                 var l = gdblines[i + 0].Replace(" ", "");

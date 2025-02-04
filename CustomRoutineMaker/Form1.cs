@@ -39,7 +39,7 @@ namespace CustomRoutineMaker
                 new SystemType("Nintendo DS", "nds", 0x02000000, 0x02000000),
                 new SystemType("Nintendo 3DS", "3ds", 0x00000000, 0x00000000),
                 new SystemType("Nintendo Switch 32", "swi32", 0x00000000, 0x00000000),
-                new SystemType("Nintendo Switch 64", "swi", 0x80000000, 0x80000000),
+                new SystemType("Nintendo Switch 64", "swi", 0x00000000, 0x00000000),
                 new SystemType("Generic", "gen", 0x00000000, 0x00000000)
             };
 
@@ -217,14 +217,14 @@ namespace CustomRoutineMaker
                 else if (system == "nds")
                 {
                     if (name == "Nintendo Switch")
-                        textGS.Text = string.Join(Environment.NewLine, SWI.Run(data, addr, textAsm.Text));
+                        textGS.Text = string.Join(Environment.NewLine, SWI.Run(data, addr, textAsm.Text, system == "swi"));
                     else
                         textGS.Text = string.Join(Environment.NewLine, NDS.Run(data, 0x02000000 | addr, textAsm.Text));
                 }
                 else if (system == "3ds")
                     textGS.Text = string.Join(Environment.NewLine, NDS.Run(data, addr, textAsm.Text));
                 else if (system == "swi")
-                    textGS.Text = string.Join(Environment.NewLine, SWI.Run(data, addr, textAsm.Text));
+                    textGS.Text = string.Join(Environment.NewLine, SWI.Run(data, addr, textAsm.Text, system == "swi"));
                 else if (system == "psp")
                     textGS.Text = string.Join(Environment.NewLine, PSP.Run(data, addr, textAsm.Text));
                 else if (system == "ps2")
