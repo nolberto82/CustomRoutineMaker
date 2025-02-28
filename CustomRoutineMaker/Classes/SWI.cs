@@ -19,7 +19,8 @@ namespace CustomRoutineMaker.Classes
             sb.AppendLine("");
 
             sb.AppendLine($".org\t0x00000000");
-            sb.AppendLine($"bl\t0x00000000");
+            sb.AppendLine($"b\tmain");
+            sb.AppendLine($"return:");
             sb.AppendLine();
 
             sb.AppendLine("");
@@ -36,7 +37,7 @@ namespace CustomRoutineMaker.Classes
             sb.AppendLine("\n");
             sb.AppendLine("\n");
 
-            sb.AppendLine($"ret\n");
+            sb.AppendLine($"b\treturn\n");
 
             return sb.ToString();
         }
