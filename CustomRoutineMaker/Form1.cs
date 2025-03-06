@@ -34,6 +34,7 @@ namespace CustomRoutineMaker
                 new SystemType("Playstation", "psx", 0x80007600, 0x80000000),
                 new SystemType("Playstation 2", "ps2", 0x200a0000, 0x20000000),
                 new SystemType("Playstation Portable", "psp", 0x08801000, 0x00000000),
+                new SystemType("Playstation Vita", "psv", 0x00000000, 0x00000000),
                 new SystemType("Nintendo 64", "n64", 0x80400000, 0x80000000),
                 new SystemType("Gameboy Advance", "gba", 0x0203ff00, 0x0203ff00),
                 new SystemType("Nintendo DS", "nds", 0x02000000, 0x02000000),
@@ -81,7 +82,7 @@ namespace CustomRoutineMaker
 
                     addrtext = textAsm.Text.Substring(index + 1, 8);
                 }
-                else if (textAsm.Text.Contains("//.swi"))
+                else if (textAsm.Text.Contains("//.swi") || textAsm.Text.Contains("//.psv"))
                 {
                     index = 0;
                     while (textAsm.Text[index] != 'x')
@@ -143,6 +144,8 @@ namespace CustomRoutineMaker
                 string exename = $"{AssemblersDir}/armips.exe";
                 if (systems[comboBox1.SelectedIndex].shortname == "swi")
                     exename = $"{AssemblersDir}/aarch64-none-elf-as.exe";
+                else if (systems[comboBox1.SelectedIndex].shortname == "psv")
+                    exename = $"{AssemblersDir}/arm-vita-eabi-as.exe";
 
                 ProcessStartInfo app = new ProcessStartInfo();
                 app.WorkingDirectory = Environment.CurrentDirectory;
@@ -162,13 +165,12 @@ namespace CustomRoutineMaker
                 }
             }
 
-
             if (systems[comboBox1.SelectedIndex].shortname == "swi")
             {
                 ProcessStartInfo appobjcopy = new ProcessStartInfo()
                 {
                     WorkingDirectory = Environment.CurrentDirectory,
-                    FileName = "aarch64-none-elf-objcopy.exe",
+                    FileName = $"{AssemblersDir}/aarch64-none-elf-objcopy.exe",
                     Arguments = "-O binary a.out out.bin",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
@@ -180,6 +182,24 @@ namespace CustomRoutineMaker
                         textGS.Text += sr.ReadToEnd();
                 }
             }
+            else if (systems[comboBox1.SelectedIndex].shortname == "psv")
+            {
+                ProcessStartInfo appobjcopy = new ProcessStartInfo()
+                {
+                    WorkingDirectory = Environment.CurrentDirectory,
+                    FileName = $"{AssemblersDir}/arm-vita-eabi-objcopy.exe",
+                    Arguments = "-O binary a.out out.bin",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = true,
+                };
+                using (Process processobjcopy = Process.Start(appobjcopy))
+                {
+                    using (StreamReader sr = processobjcopy.StandardOutput)
+                        textGS.Text += sr.ReadToEnd();
+                }
+            }
+
 
             if (textGS.Text == "")
             {
@@ -229,6 +249,8 @@ namespace CustomRoutineMaker
                     textGS.Text = string.Join(Environment.NewLine, PSP.Run(data, addr, textAsm.Text));
                 else if (system == "ps2")
                     textGS.Text = string.Join(Environment.NewLine, PS2.Run(data, addr, textAsm.Text));
+                else if (system == "psv")
+                    textGS.Text = string.Join(Environment.NewLine, PSV.Run(data, addr, textAsm.Text, system == "psv"));
                 else if (system == "gba")
                 {
                     (List<string> ARcodes, List<string> Rawcodes, List<string> Bytes) = GBA.Run(data, addr, textAsm.Text);
@@ -304,12 +326,15 @@ namespace CustomRoutineMaker
                 textAsm.Text = PS1.Initialize(addr, routine);
             else if (system == "ps2")
                 textAsm.Text = PS2.Initialize(addr, routine);
+            else if (system == "psv")
+                textAsm.Text = PSV.Initialize(addr, routine, system);
             else if (system == "gba")
                 textAsm.Text = GBA.Initialize(addr, routine);
             else if (system == "nds" || system == "3ds")
                 textAsm.Text = NDS.Initialize(addr, routine, systems[comboBox1.SelectedIndex]);
             else if (system == "swi")
                 textAsm.Text = SWI.Initialize(addr, routine, system);
+
 
             asm_filename = "";
         }

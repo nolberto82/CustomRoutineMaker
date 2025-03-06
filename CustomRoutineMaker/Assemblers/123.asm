@@ -1,6 +1,7 @@
-
+.thumb
 .org 0x10
 
-mov		x0,9
-ret
+movt r0,0x4300
+nop
+
 
