@@ -47,7 +47,7 @@ internal class NDS
 
     public static List<string> Run(byte[] data, uint addr, string asm)
     {
-        List<string> list = new();
+        List<string> list = [];
         StringBuilder sb = new();
         uint function = addr;
 
@@ -65,7 +65,7 @@ internal class NDS
         bool isthumb = asm.IndexOf(".thumb") > -1 ? true : false;
         var lines = sb.ToString().Replace(" ", "").Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
-        List<string> bl = new();
+        List<string> bl = [];
         for (int h = lines.Count - 1; h >= 0; h--)
         {
             if (lines[h].Substring(8, 2) == "EB")

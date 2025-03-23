@@ -44,7 +44,7 @@ internal class PS2
 
     public static List<string> Run(byte[] data, uint addr, string asm)
     {
-        List<string> list = new();
+        List<string> list = [];
         StringBuilder[] sb = new StringBuilder[2];
         const int entry = 0x20000000;
         sb[0] = new();
@@ -101,7 +101,7 @@ internal class PS2
 
     public static List<string> ConvertToPnachFormat(string[] lines)
     {
-        List<string> list = new();
+        List<string> list = [];
 
         if (lines.Length == 0 || lines[0] == "" || lines == null)
             return list;

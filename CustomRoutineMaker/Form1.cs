@@ -6,6 +6,7 @@ using System.DirectoryServices;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -13,6 +14,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CustomRoutineMaker
 {
+    [SupportedOSPlatform("windows")]
     public partial class Form1 : Form
     {
         string asm_filename;
@@ -29,25 +31,25 @@ namespace CustomRoutineMaker
             UpdateStatusBar();
 
             ar34 = new AR34();
-            systems = new List<SystemType>
-            {
-                new SystemType("Playstation", "psx", 0x80007600, 0x80000000),
-                new SystemType("Playstation 2", "ps2", 0x200a0000, 0x20000000),
-                new SystemType("Playstation Portable", "psp", 0x08801000, 0x00000000),
-                new SystemType("Playstation Vita", "psv", 0x00000000, 0x00000000),
-                new SystemType("Nintendo 64", "n64", 0x80400000, 0x80000000),
-                new SystemType("Gameboy Advance", "gba", 0x0203ff00, 0x0203ff00),
-                new SystemType("Nintendo DS", "nds", 0x02000000, 0x02000000),
-                new SystemType("Nintendo 3DS", "3ds", 0x00000000, 0x00000000),
-                new SystemType("Nintendo Switch 32", "swi32", 0x00000000, 0x00000000),
-                new SystemType("Nintendo Switch 64", "swi", 0x00000000, 0x00000000),
-                new SystemType("Generic", "gen", 0x00000000, 0x00000000)
-            };
+            systems =
+            [
+                new("Playstation", "psx", 0x80007600, 0x80000000),
+                new("Playstation 2", "ps2", 0x200a0000, 0x20000000),
+                new("Playstation Portable", "psp", 0x08801000, 0x00000000),
+                new("Playstation Vita", "psv", 0x00000000, 0x00000000),
+                new("Nintendo 64", "n64", 0x80400000, 0x80000000),
+                new("Gameboy Advance", "gba", 0x0203ff00, 0x0203ff00),
+                new("Nintendo DS", "nds", 0x02000000, 0x02000000),
+                new("Nintendo 3DS", "3ds", 0x00000000, 0x00000000),
+                new("Nintendo Switch 32", "swi32", 0x00000000, 0x00000000),
+                new("Nintendo Switch 64", "swi", 0x00000000, 0x00000000),
+                new("Generic", "gen", 0x00000000, 0x00000000)
+            ];
 
             foreach (SystemType s in systems)
             {
                 comboBox1.Items.Add(s.name);
-                if (s.shortname == "gba" || s.shortname == "ps2" || s.shortname == "psp")
+                if (s.shortname == "gba" || s.shortname == "ps2" || s.shortname == "psp" || s.shortname == "psv")
                     comboBox2.Items.Add(s.name);
             }
 
@@ -62,7 +64,7 @@ namespace CustomRoutineMaker
             if (!Directory.Exists("ASM"))
                 Directory.CreateDirectory("ASM");
 
-            OpenFileDialog ofd = new OpenFileDialog();
+            OpenFileDialog ofd = new();
             ofd.Filter = "ASM Files (*.asm)|*.asm";
             ofd.InitialDirectory = Environment.CurrentDirectory + "\\ASM";
 
@@ -109,7 +111,7 @@ namespace CustomRoutineMaker
             if (!Directory.Exists("ASM"))
                 Directory.CreateDirectory("ASM");
 
-            SaveFileDialog sfd = new SaveFileDialog();
+            SaveFileDialog sfd = new();
             sfd.Filter = "ASM Files (*.asm)|*.asm";
             sfd.InitialDirectory = Environment.CurrentDirectory + "\\ASM";
 
@@ -142,15 +144,20 @@ namespace CustomRoutineMaker
             if (textAsm.Text != "")
             {
                 string exename = $"{AssemblersDir}/armips.exe";
+                string args = "";
                 if (systems[comboBox1.SelectedIndex].shortname == "swi")
                     exename = $"{AssemblersDir}/aarch64-none-elf-as.exe";
                 else if (systems[comboBox1.SelectedIndex].shortname == "psv")
+                {
                     exename = $"{AssemblersDir}/arm-vita-eabi-as.exe";
+                    args = "-mfpu=neon-fp16";
+                }
 
-                ProcessStartInfo app = new ProcessStartInfo();
+
+                ProcessStartInfo app = new();
                 app.WorkingDirectory = Environment.CurrentDirectory;
-                app.FileName = exename;
-                app.Arguments = asm_filename;
+                app.FileName = $"{exename}";
+                app.Arguments = $"{asm_filename} {args}";
                 app.UseShellExecute = false;
                 app.RedirectStandardOutput = true;
                 app.RedirectStandardError = true;
@@ -167,7 +174,7 @@ namespace CustomRoutineMaker
 
             if (systems[comboBox1.SelectedIndex].shortname == "swi")
             {
-                ProcessStartInfo appobjcopy = new ProcessStartInfo()
+                ProcessStartInfo appobjcopy = new()
                 {
                     WorkingDirectory = Environment.CurrentDirectory,
                     FileName = $"{AssemblersDir}/aarch64-none-elf-objcopy.exe",
@@ -184,7 +191,7 @@ namespace CustomRoutineMaker
             }
             else if (systems[comboBox1.SelectedIndex].shortname == "psv")
             {
-                ProcessStartInfo appobjcopy = new ProcessStartInfo()
+                ProcessStartInfo appobjcopy = new()
                 {
                     WorkingDirectory = Environment.CurrentDirectory,
                     FileName = $"{AssemblersDir}/arm-vita-eabi-objcopy.exe",
@@ -203,8 +210,8 @@ namespace CustomRoutineMaker
 
             if (textGS.Text == "")
             {
-                StringBuilder sb = new StringBuilder();
-                StringBuilder sb2 = new StringBuilder();
+                StringBuilder sb = new();
+                StringBuilder sb2 = new();
                 byte[] data = null;
                 if (File.Exists("out.bin"))
                     data = File.ReadAllBytes("out.bin");
@@ -250,7 +257,11 @@ namespace CustomRoutineMaker
                 else if (system == "ps2")
                     textGS.Text = string.Join(Environment.NewLine, PS2.Run(data, addr, textAsm.Text));
                 else if (system == "psv")
-                    textGS.Text = string.Join(Environment.NewLine, PSV.Run(data, addr, textAsm.Text, system == "psv"));
+                {
+                    (List<string> list, string bytes) = PSV.Run(data, addr, textAsm.Text, system == "psv");
+                    textGS.Text = $"{string.Join(Environment.NewLine, list)}\r\n\r\n{bytes}";
+                }
+
                 else if (system == "gba")
                 {
                     (List<string> ARcodes, List<string> Rawcodes, List<string> Bytes) = GBA.Run(data, addr, textAsm.Text);
@@ -315,7 +326,7 @@ namespace CustomRoutineMaker
 
         private void btnNew_Click(object sender, EventArgs e)
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             uint addr = systems[comboBox1.SelectedIndex].origaddr;
             uint routine = systems[comboBox1.SelectedIndex].routine;
             string system = systems[comboBox1.SelectedIndex].shortname;
@@ -397,6 +408,9 @@ namespace CustomRoutineMaker
                 textPnach.Text = string.Join(Environment.NewLine,
                     PSP.ConvertToGHFormat(textPS2.Text.Split(new[] { '\n' },
                     StringSplitOptions.RemoveEmptyEntries).ToArray()));
+            else if (system == "psv")
+                textPnach.Text = string.Join(Environment.NewLine,
+                    PSV.ConvertSegAddress(textPS2.Text));
         }
 
         private void textGS_MouseDown(object sender, MouseEventArgs e)

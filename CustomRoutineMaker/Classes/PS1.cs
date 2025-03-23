@@ -44,7 +44,7 @@ internal class PS1
 
     public static List<string> Run(byte[] data, uint addr, string asm)
     {
-        List<string> list = new();
+        List<string> list = [];
         StringBuilder sb = new();
         sb = new();
         int linesnum = 0;

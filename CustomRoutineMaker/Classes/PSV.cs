@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,7 +14,10 @@ internal class PSV
         StringBuilder sb = new();
 
         sb.AppendLine($"//.psv");
+        sb.AppendLine($".syntax unified");
         sb.AppendLine($".thumb");
+        sb.AppendLine($".align 4");
+        sb.AppendLine($".set patch,0");
 
         sb.AppendLine("");
 
@@ -41,40 +45,45 @@ internal class PSV
         return sb.ToString();
     }
 
-    public static List<string> Run(byte[] data, uint addr, string asm, bool is64)
+    public static (List<string>, string) Run(byte[] data, uint addr, string asm, bool is64)
     {
-        List<string> list = new();
+        List<string> lines = [];
+        List<byte> bytes = [];
         StringBuilder sb = new();
+        int size = 2;
+        uint baseaddr = asm.IndexOf(".aslr") == -1 ? 0x80000000 : 0;
 
-        int size = 4;
         for (int i = 0; i < data.Length;)
         {
-            if (i + 4 > data.Length)
+            if (i + size >= data.Length)
                 break;
 
             int[] lo = new int[1];
-
             Buffer.BlockCopy(data, i, lo, 0, size);
 
             if (lo[0] != 0)
             {
-                var v = lo[0] >> 16 | lo[0] << 16;
-
-                if (v < 0x10000)
+                uint b = (uint)(addr < 0x1000000 ? baseaddr + 0x1000000 : baseaddr);
+                if ((lo[0] & 0x1800) > 0)
                 {
-                    addr += 2;
-                    i += 2;
-                    sb.Append($"$A200 {0x80000000 | addr & 0xfffffff:X8} " +
+                    int[] hi = new int[1];
+                    Buffer.BlockCopy(data, i + 2, hi, 0, size);
+                    var v = hi[0] << 16 | lo[0];
+                    sb.Append($"$A200 {b | addr & 0xfffffff:X8} " +
                         $"{v:X8}\n");
-                    continue;
+                    i += 2;
+                    addr += 2;
+                    bytes.Add((byte)lo[0]);
+                    bytes.Add((byte)(lo[0] >> 8));
+                    bytes.Add((byte)hi[0]);
+                    bytes.Add((byte)(hi[0] >> 8));
                 }
                 else
                 {
-                    i += size;
-                    addr += (uint)size;
-                    sb.Append($"$A200 {0x80000000 | addr & 0xfffffff:X8} " +
-                        $"{v:X8}\n");
-                    continue;
+                    sb.Append($"$A100 {b | addr & 0xfffffff:X8} " +
+                        $"{lo[0]:X8}\n");
+                    bytes.Add((byte)lo[0]);
+                    bytes.Add((byte)(lo[0] >> 8));
                 }
             }
 
@@ -82,40 +91,71 @@ internal class PSV
             addr += (uint)size;
         }
 
-        bool isthumb = asm.IndexOf(".thumb") > -1 ? true : false;
+
         var temp = sb.ToString().Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-        List<string> bl = new();
-        for (int k = temp.Count - 1; k >= 0; k--)
-        {
-            var bra = Convert.ToUInt32(temp[k].Substring(15, 8), 16) >> 24;
-            if ((!is64 && (bra == 0xeb) || (bra == 0x14 || bra == 0x15 || bra == 0x94 || (bra == 0x95))))
-            {
-                bl.Add(temp[k]);
-                temp.RemoveAt(k);
-            }
-        }
-
         temp.Add("");
-
-        List<string> lines = new();
-        List<string> values = new();
-        List<string> bytes = new();
-
-        for (int k = 0; k < bl.Count; k++)
-        {
-            bl[k] = bl[k].Replace(" ", "");
-            lines.Add($"04000000 {bl[k].Substring(8, 8)} {bl[k].Substring(16, 8)}");
-        }
 
         for (int i = 0; i < temp.Count; i++)
         {
-            if (temp[i] == "")
+            if (temp[i] == "" || temp[i].Length != 23)
                 continue;
 
             var v1 = temp[i + 0].Replace(" ", "");
-
-            lines.Add($"{v1.Substring(0, 5)} {v1.Substring(5, 8)} {v1.Substring(13, 8)}");
+            lines.Add($"{v1[..5]} {v1.Substring(5, 8)} {v1.Substring(13, 8)}");
         }
-        return lines;
+
+        string strbytes = "";
+        foreach (var b in bytes)
+            strbytes += $"{b:X2} ";
+
+        return (lines, strbytes);
+    }
+
+    public static List<string> ConvertSegAddress(string addr)
+    {
+        List<string> res = new();
+        List<int> numbers = new();
+        string math = "";
+        if (!string.IsNullOrEmpty(addr))
+        {
+            var d = addr.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
+            foreach (var s in d)
+            {
+                var number = "";
+                for (int i = 0; i < s.Length; i++)
+                {
+                    char v = s[i];
+                    switch (v)
+                    {
+                        case '+' or '-':
+                            math = v.ToString();
+                            numbers.Add(Convert.ToInt32(number, 16));
+                            number = "";
+                            break;
+                        default:
+                            number += v;
+                            break;
+                    }
+
+                    if (number != "" && i == s.Length - 1)
+                        numbers.Add(Convert.ToInt32(number, 16));
+                }
+
+                if (numbers.Count > 1)
+                {
+                    switch (math)
+                    {
+                        case "+": res.Add($"{numbers[0] + numbers[1] - 0x4000:X}"); break;
+                        case "-": res.Add($"{numbers[0] - numbers[1] - 0x4000:X}"); break;
+                    }
+                }
+                else if (numbers.Count == 1)
+                {
+                    res.Add($"{numbers[0] - 0x4000:X}");
+                }
+                numbers.Clear();
+            }
+        }
+        return res;
     }
 }

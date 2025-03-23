@@ -49,7 +49,7 @@ internal class PSP
 
     public static List<string> Run(byte[] data, uint addr, string asm)
     {
-        List<string> list = new();
+        List<string> list = [];
         StringBuilder[] sb = new StringBuilder[2];
         sb[0] = new();
         sb[1] = new();
@@ -108,8 +108,8 @@ internal class PSP
 
     public static List<string> ConvertToGHFormat(string[] lines)
     {
-        List<string> list = new();
-        List<string> pspaddrs = new();
+        List<string> list = [];
+        List<string> pspaddrs = [];
 
 
         if (lines.Length == 0 || lines[0] == "" || lines == null)
@@ -119,6 +119,7 @@ internal class PSP
 
         for (int i = 0; i < lines.Length; i++)
         {
+            if (lines[i].Length < 17) continue;
             if (lines[i].StartsWith('\r') || lines[i].StartsWith("\r\n"))
             {
                 list.Add(" ");

@@ -42,7 +42,7 @@ internal class SWI
 
     public static List<string> Run(byte[] data, uint addr, string asm, bool is64)
     {
-        List<string> list = new();
+        List<string> list = [];
         StringBuilder sb = new();
 
         int size = 4;
@@ -66,7 +66,7 @@ internal class SWI
 
         bool isthumb = asm.IndexOf(".thumb") > -1 ? true : false;
         var temp = sb.ToString().Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-        List<string> bl = new();
+        List<string> bl = [];
         for (int k = temp.Count - 1; k >= 0; k--)
         {
             var bra = Convert.ToUInt32(temp[k].Substring(18, 8), 16) >> 24;
@@ -79,9 +79,9 @@ internal class SWI
 
         temp.Add("");
 
-        List<string> lines = new();
-        List<string> values = new();
-        List<string> bytes = new();
+        List<string> lines = [];
+        List<string> values = [];
+        List<string> bytes = [];
 
         for (int k = 0; k < bl.Count; k++)
         {

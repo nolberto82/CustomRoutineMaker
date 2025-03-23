@@ -43,9 +43,9 @@ internal class GBA
     public static (List<string>, List<string>, List<string>) Run(byte[] data, uint addr, string asm)
     {
         AR34 AR34 = new();
-        List<string> list = new();
-        List<string> unlist = new();
-        List<string> bytes = new();
+        List<string> list = [];
+        List<string> unlist = [];
+        List<string> bytes = [];
         StringBuilder sb = new();
         int id = 0xc;
         bool is_arm = asm.IndexOf(".arm") > -1 ? true : false;
@@ -98,7 +98,7 @@ internal class GBA
     public static List<string> ConvertToARFormat(string[] lines)
     {
         AR34 AR34 = new();
-        List<string> list = new();
+        List<string> list = [];
         int id = 0xc;
 
         if (lines.Length == 0 || lines[0] == "" || lines == null)
@@ -132,7 +132,7 @@ internal class GBA
     public static List<string> ConvertToRawFormat(string[] lines)
     {
         AR34 AR34 = new();
-        List<string> list = new();
+        List<string> list = [];
         int id = 0xc;
 
         if (lines.Length == 0 || lines[0] == "" || lines == null)

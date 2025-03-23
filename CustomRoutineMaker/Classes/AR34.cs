@@ -53,7 +53,7 @@ public class AR34
 
     public List<string> Encrypt(string[] words)
     {
-        List<string> codes = new();
+        List<string> codes = [];
         uint tmp1, tmp2, tmp3;
 
         ulong[] seeds = GetDeadFace(0);
@@ -90,7 +90,7 @@ public class AR34
 
     public List<string> Decrypt(string[] words)
     {
-        List<string> codes = new();
+        List<string> codes = [];
         uint tmp1, tmp2, tmp3;
 
         ulong[] seeds = GetDeadFace(0);
@@ -125,7 +125,7 @@ public class AR34
 
     public List<string> Encode(string lines, string[] words, ref int id)
     {
-        List<string> encode = new();
+        List<string> encode = [];
 
         uint upper = 0;
         uint lower = 0;
@@ -163,7 +163,7 @@ public class AR34
 
     public List<string> Decode(string lines, string[] words, ref int id)
     {
-        List<string> decode = new();
+        List<string> decode = [];
 
         uint upper = 0;
         uint lower = 0;
