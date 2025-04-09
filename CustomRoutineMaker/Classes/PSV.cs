@@ -1,8 +1,12 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
+using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace CustomRoutineMaker.Classes;
@@ -111,49 +115,28 @@ internal class PSV
         return (lines, strbytes);
     }
 
-    public static List<string> ConvertSegAddress(string addr)
+    public static string ConvertSegAddress(string addr)
     {
-        List<string> res = new();
-        List<int> numbers = new();
-        string math = "";
+        string res = string.Empty;
+
         if (!string.IsNullOrEmpty(addr))
         {
-            var d = addr.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
-            foreach (var s in d)
+            if (addr.All(char.IsDigit) || addr.ToUpper().Any("0123456789ABCDEF".Contains))
             {
-                var number = "";
-                for (int i = 0; i < s.Length; i++)
+                var s = addr.Split(["+", "-","\r\n"], StringSplitOptions.RemoveEmptyEntries);
+                foreach (var x in s)
                 {
-                    char v = s[i];
-                    switch (v)
-                    {
-                        case '+' or '-':
-                            math = v.ToString();
-                            numbers.Add(Convert.ToInt32(number, 16));
-                            number = "";
-                            break;
-                        default:
-                            number += v;
-                            break;
-                    }
-
-                    if (number != "" && i == s.Length - 1)
-                        numbers.Add(Convert.ToInt32(number, 16));
+                    var h = int.TryParse(x, System.Globalization.NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var n);
+                    if (h)
+                        addr = addr.Replace(x, $"{n}");
                 }
-
-                if (numbers.Count > 1)
+                DataTable dt = new();
+                var c = addr.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
+                foreach (var a in c)
                 {
-                    switch (math)
-                    {
-                        case "+": res.Add($"{numbers[0] + numbers[1] - 0x4000:X}"); break;
-                        case "-": res.Add($"{numbers[0] - numbers[1] - 0x4000:X}"); break;
-                    }
+                    if (int.TryParse($"{dt.Compute(a, "")}", out var v))
+                        res += $"{v:X}\r\n";
                 }
-                else if (numbers.Count == 1)
-                {
-                    res.Add($"{numbers[0] - 0x4000:X}");
-                }
-                numbers.Clear();
             }
         }
         return res;

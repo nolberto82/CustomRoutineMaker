@@ -428,5 +428,17 @@ namespace CustomRoutineMaker
             if (count > 1)
                 UpdateStatusBar($"- Selection: {count:X2}");
         }
+
+        private void textInput_TextChanged(object sender, EventArgs e)
+        {
+            textInput.Text = textInput.Text.Replace(" ", "");
+            if (textInput.Text.Length > 0 && textInput.Text.All(c => "0123456789abcdefABCDEF".Contains(c)))
+            {
+                textResult.Text = "";
+                var a = BitConverter.GetBytes(Convert.ToInt32(textInput.Text, 16));
+                foreach (var c in a)
+                    textResult.Text += $"{c:X2} ";
+            }
+        }
     }
 }

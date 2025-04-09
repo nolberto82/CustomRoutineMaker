@@ -21,202 +21,244 @@ namespace CustomRoutineMaker
 			base.Dispose(disposing);
 		}
 
-		#region Windows Form Designer generated code
+        #region Windows Form Designer generated code
 
-		/// <summary>
-		/// Required method for Designer support - do not modify
-		/// the contents of this method with the code editor.
-		/// </summary>
-		private void InitializeComponent()
-		{
-            this.btnAsm = new System.Windows.Forms.Button();
-            this.btnAssemble = new System.Windows.Forms.Button();
-            this.btnOpen = new System.Windows.Forms.Button();
-            this.textAsm = new System.Windows.Forms.TextBox();
-            this.statusBar = new System.Windows.Forms.StatusStrip();
-            this.statusAsm = new System.Windows.Forms.ToolStripStatusLabel();
-            this.btnNew = new System.Windows.Forms.Button();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
-            this.textPS2 = new System.Windows.Forms.TextBox();
-            this.textPnach = new System.Windows.Forms.TextBox();
-            this.btnConvert = new System.Windows.Forms.Button();
-            this.comboBox2 = new System.Windows.Forms.ComboBox();
-            this.textGS = new System.Windows.Forms.TextBox();
-            this.statusBar.SuspendLayout();
-            this.SuspendLayout();
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            btnAsm = new System.Windows.Forms.Button();
+            btnAssemble = new System.Windows.Forms.Button();
+            btnOpen = new System.Windows.Forms.Button();
+            textAsm = new System.Windows.Forms.TextBox();
+            statusBar = new System.Windows.Forms.StatusStrip();
+            statusAsm = new System.Windows.Forms.ToolStripStatusLabel();
+            btnNew = new System.Windows.Forms.Button();
+            comboBox1 = new System.Windows.Forms.ComboBox();
+            textPS2 = new System.Windows.Forms.TextBox();
+            textPnach = new System.Windows.Forms.TextBox();
+            btnConvert = new System.Windows.Forms.Button();
+            comboBox2 = new System.Windows.Forms.ComboBox();
+            textGS = new System.Windows.Forms.TextBox();
+            textInput = new System.Windows.Forms.TextBox();
+            label1 = new System.Windows.Forms.Label();
+            textResult = new System.Windows.Forms.TextBox();
+            label2 = new System.Windows.Forms.Label();
+            statusBar.SuspendLayout();
+            SuspendLayout();
             // 
             // btnAsm
             // 
-            this.btnAsm.Location = new System.Drawing.Point(383, 38);
-            this.btnAsm.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.btnAsm.Name = "btnAsm";
-            this.btnAsm.Size = new System.Drawing.Size(190, 32);
-            this.btnAsm.TabIndex = 2;
-            this.btnAsm.Text = "Save Asm";
-            this.btnAsm.UseVisualStyleBackColor = true;
+            btnAsm.Location = new System.Drawing.Point(427, 38);
+            btnAsm.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            btnAsm.Name = "btnAsm";
+            btnAsm.Size = new System.Drawing.Size(190, 32);
+            btnAsm.TabIndex = 2;
+            btnAsm.Text = "Save Asm";
+            btnAsm.UseVisualStyleBackColor = true;
             // 
             // btnAssemble
             // 
-            this.btnAssemble.Location = new System.Drawing.Point(604, 38);
-            this.btnAssemble.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.btnAssemble.Name = "btnAssemble";
-            this.btnAssemble.Size = new System.Drawing.Size(190, 32);
-            this.btnAssemble.TabIndex = 3;
-            this.btnAssemble.Text = "Assemble";
-            this.btnAssemble.UseVisualStyleBackColor = true;
-            this.btnAssemble.Click += new System.EventHandler(this.btnAssemble_Click);
+            btnAssemble.Location = new System.Drawing.Point(644, 38);
+            btnAssemble.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            btnAssemble.Name = "btnAssemble";
+            btnAssemble.Size = new System.Drawing.Size(190, 32);
+            btnAssemble.TabIndex = 3;
+            btnAssemble.Text = "Assemble";
+            btnAssemble.UseVisualStyleBackColor = true;
+            btnAssemble.Click += btnAssemble_Click;
             // 
             // btnOpen
             // 
-            this.btnOpen.Location = new System.Drawing.Point(197, 38);
-            this.btnOpen.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.btnOpen.Name = "btnOpen";
-            this.btnOpen.Size = new System.Drawing.Size(180, 32);
-            this.btnOpen.TabIndex = 4;
-            this.btnOpen.Text = "Open Asm";
-            this.btnOpen.UseVisualStyleBackColor = true;
-            this.btnOpen.Click += new System.EventHandler(this.btnOpen_Click);
+            btnOpen.Location = new System.Drawing.Point(241, 39);
+            btnOpen.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            btnOpen.Name = "btnOpen";
+            btnOpen.Size = new System.Drawing.Size(180, 32);
+            btnOpen.TabIndex = 4;
+            btnOpen.Text = "Open Asm";
+            btnOpen.UseVisualStyleBackColor = true;
+            btnOpen.Click += btnOpen_Click;
             // 
             // textAsm
             // 
-            this.textAsm.AcceptsTab = true;
-            this.textAsm.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textAsm.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.textAsm.Location = new System.Drawing.Point(11, 79);
-            this.textAsm.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.textAsm.Multiline = true;
-            this.textAsm.Name = "textAsm";
-            this.textAsm.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textAsm.Size = new System.Drawing.Size(366, 656);
-            this.textAsm.TabIndex = 5;
-            this.textAsm.Click += new System.EventHandler(this.textAsm_Click);
-            this.textAsm.TextChanged += new System.EventHandler(this.textAsm_TextChanged);
+            textAsm.AcceptsTab = true;
+            textAsm.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            textAsm.Font = new System.Drawing.Font("Consolas", 11.25F);
+            textAsm.Location = new System.Drawing.Point(11, 79);
+            textAsm.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            textAsm.Multiline = true;
+            textAsm.Name = "textAsm";
+            textAsm.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            textAsm.Size = new System.Drawing.Size(410, 656);
+            textAsm.TabIndex = 5;
+            textAsm.Click += textAsm_Click;
+            textAsm.TextChanged += textAsm_TextChanged;
             // 
             // statusBar
             // 
-            this.statusBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.statusAsm});
-            this.statusBar.Location = new System.Drawing.Point(0, 739);
-            this.statusBar.Name = "statusBar";
-            this.statusBar.Padding = new System.Windows.Forms.Padding(2, 0, 18, 0);
-            this.statusBar.Size = new System.Drawing.Size(1184, 22);
-            this.statusBar.TabIndex = 6;
-            this.statusBar.Text = "statusStrip1";
+            statusBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { statusAsm });
+            statusBar.Location = new System.Drawing.Point(0, 739);
+            statusBar.Name = "statusBar";
+            statusBar.Padding = new System.Windows.Forms.Padding(2, 0, 18, 0);
+            statusBar.Size = new System.Drawing.Size(1184, 22);
+            statusBar.TabIndex = 6;
+            statusBar.Text = "statusStrip1";
             // 
             // statusAsm
             // 
-            this.statusAsm.Name = "statusAsm";
-            this.statusAsm.Size = new System.Drawing.Size(82, 17);
-            this.statusAsm.Text = "Line Number: ";
+            statusAsm.Name = "statusAsm";
+            statusAsm.Size = new System.Drawing.Size(82, 17);
+            statusAsm.Text = "Line Number: ";
             // 
             // btnNew
             // 
-            this.btnNew.Location = new System.Drawing.Point(11, 38);
-            this.btnNew.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.btnNew.Name = "btnNew";
-            this.btnNew.Size = new System.Drawing.Size(180, 32);
-            this.btnNew.TabIndex = 7;
-            this.btnNew.Text = "New File";
-            this.btnNew.UseVisualStyleBackColor = true;
-            this.btnNew.Click += new System.EventHandler(this.btnNew_Click);
+            btnNew.Location = new System.Drawing.Point(11, 38);
+            btnNew.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            btnNew.Name = "btnNew";
+            btnNew.Size = new System.Drawing.Size(180, 32);
+            btnNew.TabIndex = 7;
+            btnNew.Text = "New File";
+            btnNew.UseVisualStyleBackColor = true;
+            btnNew.Click += btnNew_Click;
             // 
             // comboBox1
             // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(14, 10);
-            this.comboBox1.Margin = new System.Windows.Forms.Padding(2);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(363, 26);
-            this.comboBox1.TabIndex = 10;
+            comboBox1.FormattingEnabled = true;
+            comboBox1.Location = new System.Drawing.Point(14, 10);
+            comboBox1.Margin = new System.Windows.Forms.Padding(2);
+            comboBox1.Name = "comboBox1";
+            comboBox1.Size = new System.Drawing.Size(407, 26);
+            comboBox1.TabIndex = 10;
             // 
             // textPS2
             // 
-            this.textPS2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textPS2.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.textPS2.Location = new System.Drawing.Point(800, 79);
-            this.textPS2.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.textPS2.Multiline = true;
-            this.textPS2.Name = "textPS2";
-            this.textPS2.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textPS2.Size = new System.Drawing.Size(372, 320);
-            this.textPS2.TabIndex = 11;
+            textPS2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            textPS2.Font = new System.Drawing.Font("Consolas", 11.25F);
+            textPS2.Location = new System.Drawing.Point(840, 79);
+            textPS2.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            textPS2.Multiline = true;
+            textPS2.Name = "textPS2";
+            textPS2.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            textPS2.Size = new System.Drawing.Size(332, 320);
+            textPS2.TabIndex = 11;
             // 
             // textPnach
             // 
-            this.textPnach.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textPnach.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.textPnach.Location = new System.Drawing.Point(800, 415);
-            this.textPnach.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.textPnach.Multiline = true;
-            this.textPnach.Name = "textPnach";
-            this.textPnach.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textPnach.Size = new System.Drawing.Size(372, 320);
-            this.textPnach.TabIndex = 12;
+            textPnach.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            textPnach.Font = new System.Drawing.Font("Consolas", 11.25F);
+            textPnach.Location = new System.Drawing.Point(840, 415);
+            textPnach.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            textPnach.Multiline = true;
+            textPnach.Name = "textPnach";
+            textPnach.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            textPnach.Size = new System.Drawing.Size(332, 320);
+            textPnach.TabIndex = 12;
             // 
             // btnConvert
             // 
-            this.btnConvert.Location = new System.Drawing.Point(800, 39);
-            this.btnConvert.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.btnConvert.Name = "btnConvert";
-            this.btnConvert.Size = new System.Drawing.Size(372, 32);
-            this.btnConvert.TabIndex = 13;
-            this.btnConvert.Text = "Convert";
-            this.btnConvert.UseVisualStyleBackColor = true;
-            this.btnConvert.Click += new System.EventHandler(this.btnConvert_Click);
+            btnConvert.Location = new System.Drawing.Point(840, 39);
+            btnConvert.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            btnConvert.Name = "btnConvert";
+            btnConvert.Size = new System.Drawing.Size(332, 32);
+            btnConvert.TabIndex = 13;
+            btnConvert.Text = "Convert";
+            btnConvert.UseVisualStyleBackColor = true;
+            btnConvert.Click += btnConvert_Click;
             // 
             // comboBox2
             // 
-            this.comboBox2.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Location = new System.Drawing.Point(800, 11);
-            this.comboBox2.Margin = new System.Windows.Forms.Padding(2);
-            this.comboBox2.Name = "comboBox2";
-            this.comboBox2.Size = new System.Drawing.Size(372, 26);
-            this.comboBox2.TabIndex = 14;
+            comboBox2.Font = new System.Drawing.Font("Consolas", 11.25F);
+            comboBox2.FormattingEnabled = true;
+            comboBox2.Location = new System.Drawing.Point(840, 11);
+            comboBox2.Margin = new System.Windows.Forms.Padding(2);
+            comboBox2.Name = "comboBox2";
+            comboBox2.Size = new System.Drawing.Size(332, 26);
+            comboBox2.TabIndex = 14;
             // 
             // textGS
             // 
-            this.textGS.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.textGS.Location = new System.Drawing.Point(383, 79);
-            this.textGS.Multiline = true;
-            this.textGS.Name = "textGS";
-            this.textGS.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textGS.Size = new System.Drawing.Size(407, 656);
-            this.textGS.TabIndex = 15;
+            textGS.Font = new System.Drawing.Font("Consolas", 9.75F);
+            textGS.Location = new System.Drawing.Point(427, 80);
+            textGS.Multiline = true;
+            textGS.Name = "textGS";
+            textGS.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            textGS.Size = new System.Drawing.Size(407, 609);
+            textGS.TabIndex = 15;
+            // 
+            // textInput
+            // 
+            textInput.Font = new System.Drawing.Font("Consolas", 9.75F);
+            textInput.Location = new System.Drawing.Point(427, 712);
+            textInput.Name = "textInput";
+            textInput.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            textInput.Size = new System.Drawing.Size(126, 23);
+            textInput.TabIndex = 16;
+            textInput.TextChanged += textInput_TextChanged;
+            // 
+            // label1
+            // 
+            label1.Location = new System.Drawing.Point(427, 692);
+            label1.Name = "label1";
+            label1.Size = new System.Drawing.Size(126, 15);
+            label1.TabIndex = 17;
+            label1.Text = "Address";
+            // 
+            // textResult
+            // 
+            textResult.Font = new System.Drawing.Font("Consolas", 9.75F);
+            textResult.Location = new System.Drawing.Point(568, 712);
+            textResult.Name = "textResult";
+            textResult.ReadOnly = true;
+            textResult.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            textResult.Size = new System.Drawing.Size(126, 23);
+            textResult.TabIndex = 18;
+            // 
+            // label2
+            // 
+            label2.Location = new System.Drawing.Point(568, 692);
+            label2.Name = "label2";
+            label2.Size = new System.Drawing.Size(126, 15);
+            label2.TabIndex = 19;
+            label2.Text = "Reversed";
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 18F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1184, 761);
-            this.Controls.Add(this.textGS);
-            this.Controls.Add(this.comboBox2);
-            this.Controls.Add(this.btnConvert);
-            this.Controls.Add(this.textPnach);
-            this.Controls.Add(this.textPS2);
-            this.Controls.Add(this.comboBox1);
-            this.Controls.Add(this.btnNew);
-            this.Controls.Add(this.statusBar);
-            this.Controls.Add(this.textAsm);
-            this.Controls.Add(this.btnOpen);
-            this.Controls.Add(this.btnAssemble);
-            this.Controls.Add(this.btnAsm);
-            this.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.MaximizeBox = false;
-            this.Name = "Form1";
-            this.Text = "Custom Routine Creator";
-            this.Load += new System.EventHandler(this.Form1_Load);
-            this.statusBar.ResumeLayout(false);
-            this.statusBar.PerformLayout();
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AutoScaleDimensions = new System.Drawing.SizeF(8F, 18F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            ClientSize = new System.Drawing.Size(1184, 761);
+            Controls.Add(label2);
+            Controls.Add(textResult);
+            Controls.Add(label1);
+            Controls.Add(textInput);
+            Controls.Add(textGS);
+            Controls.Add(comboBox2);
+            Controls.Add(btnConvert);
+            Controls.Add(textPnach);
+            Controls.Add(textPS2);
+            Controls.Add(comboBox1);
+            Controls.Add(btnNew);
+            Controls.Add(statusBar);
+            Controls.Add(textAsm);
+            Controls.Add(btnOpen);
+            Controls.Add(btnAssemble);
+            Controls.Add(btnAsm);
+            Font = new System.Drawing.Font("Consolas", 11.25F);
+            FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            MaximizeBox = false;
+            Name = "Form1";
+            Text = "Custom Routine Creator";
+            Load += Form1_Load;
+            statusBar.ResumeLayout(false);
+            statusBar.PerformLayout();
+            ResumeLayout(false);
+            PerformLayout();
+        }
 
-		}
-
-		#endregion
-		private global::System.Windows.Forms.Button btnAsm;
+        #endregion
+        private global::System.Windows.Forms.Button btnAsm;
 		private global::System.Windows.Forms.Button btnAssemble;
 		private global::System.Windows.Forms.Button btnOpen;
 		private global::System.Windows.Forms.TextBox textAsm;
@@ -229,6 +271,10 @@ namespace CustomRoutineMaker
         private global::System.Windows.Forms.Button btnConvert;
         private global::System.Windows.Forms.ComboBox comboBox2;
         private System.Windows.Forms.TextBox textGS;
+        private System.Windows.Forms.TextBox textInput;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox textResult;
+        private System.Windows.Forms.Label label2;
     }
 }
 
