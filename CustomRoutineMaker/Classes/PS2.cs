@@ -108,25 +108,39 @@ internal class PS2
 
         for (int i = 0; i < lines.Length; i++)
         {
-            string ns = lines[i].Trim().Replace(" ", "");
+            string ns = lines[i].ReplaceLineEndings().Replace(" ","");
+            ns = new string(ns.Where(c => char.IsLetterOrDigit(c)).ToArray());
             if (lines[i].StartsWith('\r') || lines[i].StartsWith("\r\n"))
             {
                 list.Add(" ");
                 continue;
             }
-            else if (ns.Length < 16)
+            if (ns.All(char.IsAsciiHexDigit))
             {
-                list.Add(" ");
+                if (ns.Length < 16)
+                {
+                    list.Add(" ");
+                    continue;
+                }
+                list.Add($"patch=1,EE,{ns.Substring(0, 8):X4},extended,{ns.Substring(8, 8):X8}");
                 continue;
             }
-            if (!ns.All("0123456789abcdefABCDEF".Contains))
-            {
-                list.Add($"//{lines[i].Replace("\r", "")}");
-                continue;
-            }
-            list.Add($"patch=1,EE,{ns.Substring(0, 8):X4},extended,{ns.Substring(8, 8):X8}");
+
+            list.Add($"[{lines[i].Replace("\r", "")}]");
         }
 
         return list;
+    }
+
+    public static bool IsHex(string s)
+    {
+        for (int i = 0; i < s.Length; i++)
+        {
+            char c = s[i];
+            if (!char.IsAsciiHexDigitUpper(c))
+                return false;
+        }
+
+        return true;
     }
 }

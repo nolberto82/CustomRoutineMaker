@@ -126,7 +126,7 @@ internal class PSV
                 var s = addr.Split(["+", "-","\r\n"], StringSplitOptions.RemoveEmptyEntries);
                 foreach (var x in s)
                 {
-                    var h = int.TryParse(x, System.Globalization.NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var n);
+                    var h = ulong.TryParse(x, System.Globalization.NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var n);
                     if (h)
                         addr = addr.Replace(x, $"{n}");
                 }
@@ -134,7 +134,7 @@ internal class PSV
                 var c = addr.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
                 foreach (var a in c)
                 {
-                    if (int.TryParse($"{dt.Compute(a, "")}", out var v))
+                    if (ulong.TryParse($"{dt.Compute(a, "")}", out var v))
                         res += $"{v:X}\r\n";
                 }
             }

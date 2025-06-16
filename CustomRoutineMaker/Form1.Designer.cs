@@ -46,6 +46,7 @@ namespace CustomRoutineMaker
             label1 = new System.Windows.Forms.Label();
             textResult = new System.Windows.Forms.TextBox();
             label2 = new System.Windows.Forms.Label();
+            textResult2 = new System.Windows.Forms.TextBox();
             statusBar.SuspendLayout();
             SuspendLayout();
             // 
@@ -208,7 +209,7 @@ namespace CustomRoutineMaker
             // textResult
             // 
             textResult.Font = new System.Drawing.Font("Consolas", 9.75F);
-            textResult.Location = new System.Drawing.Point(568, 712);
+            textResult.Location = new System.Drawing.Point(559, 712);
             textResult.Name = "textResult";
             textResult.ReadOnly = true;
             textResult.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
@@ -217,17 +218,27 @@ namespace CustomRoutineMaker
             // 
             // label2
             // 
-            label2.Location = new System.Drawing.Point(568, 692);
+            label2.Location = new System.Drawing.Point(559, 694);
             label2.Name = "label2";
             label2.Size = new System.Drawing.Size(126, 15);
             label2.TabIndex = 19;
             label2.Text = "Reversed";
+            // 
+            // textResult2
+            // 
+            textResult2.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
+            textResult2.Location = new System.Drawing.Point(691, 711);
+            textResult2.Name = "textResult2";
+            textResult2.ReadOnly = true;
+            textResult2.Size = new System.Drawing.Size(128, 23);
+            textResult2.TabIndex = 20;
             // 
             // Form1
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(8F, 18F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             ClientSize = new System.Drawing.Size(1184, 761);
+            Controls.Add(textResult2);
             Controls.Add(label2);
             Controls.Add(textResult);
             Controls.Add(label1);
@@ -275,6 +286,7 @@ namespace CustomRoutineMaker
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox textResult;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox textResult2;
     }
 }
 

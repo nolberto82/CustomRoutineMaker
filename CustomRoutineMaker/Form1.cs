@@ -435,9 +435,13 @@ namespace CustomRoutineMaker
             if (textInput.Text.Length > 0 && textInput.Text.All(c => "0123456789abcdefABCDEF".Contains(c)))
             {
                 textResult.Text = "";
-                var a = BitConverter.GetBytes(Convert.ToInt32(textInput.Text, 16));
+                textResult2.Text = "";
+                var a = BitConverter.GetBytes(Convert.ToUInt64(textInput.Text, 16));
                 foreach (var c in a)
+                {
                     textResult.Text += $"{c:X2} ";
+                    textResult2.Text += $"{c:X2}";
+                }
             }
         }
     }

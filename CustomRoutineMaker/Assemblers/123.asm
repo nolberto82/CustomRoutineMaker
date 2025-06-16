@@ -1,7 +1,5 @@
-.thumb
-.org 0x10
+arch snes.cpu
 
-movt r0,0x4300
-nop
+lda.b #$09
 
 
