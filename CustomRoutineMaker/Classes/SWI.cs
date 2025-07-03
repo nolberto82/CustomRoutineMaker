@@ -65,7 +65,7 @@ internal class SWI
         }
 
         bool isthumb = asm.IndexOf(".thumb") > -1 ? true : false;
-        var temp = sb.ToString().Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        var temp = sb.ToString().Split(['\n'], StringSplitOptions.RemoveEmptyEntries).ToList();
         List<string> bl = [];
         for (int k = temp.Count - 1; k >= 0; k--)
         {

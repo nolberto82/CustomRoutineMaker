@@ -9,7 +9,7 @@ namespace CustomRoutineMaker.Classes;
 
 internal class PS2
 {
-    public static string Initialize(uint addr, uint routine)
+    public static string Initialize()
     {
         StringBuilder sb = new();
 
@@ -109,8 +109,8 @@ internal class PS2
         for (int i = 0; i < lines.Length; i++)
         {
             string ns = lines[i].ReplaceLineEndings().Replace(" ","");
-            ns = new string(ns.Where(c => char.IsLetterOrDigit(c)).ToArray());
-            if (lines[i].StartsWith('\r') || lines[i].StartsWith("\r\n"))
+            ns = new string([.. ns.Where(c => char.IsLetterOrDigit(c))]);
+            if (ns.StartsWith('\r') || ns.StartsWith("\r\n"))
             {
                 list.Add(" ");
                 continue;
@@ -122,11 +122,11 @@ internal class PS2
                     list.Add(" ");
                     continue;
                 }
-                list.Add($"patch=1,EE,{ns.Substring(0, 8):X4},extended,{ns.Substring(8, 8):X8}");
+                list.Add($"patch=1,EE,{ns[..8]:X4},extended,{ns.Substring(8, 8):X8}");
                 continue;
             }
 
-            list.Add($"[{lines[i].Replace("\r", "")}]");
+            list.Add($"[{ns.Replace("\r", "")}]");
         }
 
         return list;

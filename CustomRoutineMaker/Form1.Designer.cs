@@ -69,7 +69,7 @@ namespace CustomRoutineMaker
             btnAssemble.TabIndex = 3;
             btnAssemble.Text = "Assemble";
             btnAssemble.UseVisualStyleBackColor = true;
-            btnAssemble.Click += btnAssemble_Click;
+            btnAssemble.Click += BtnAssemble_Click;
             // 
             // btnOpen
             // 
@@ -80,7 +80,7 @@ namespace CustomRoutineMaker
             btnOpen.TabIndex = 4;
             btnOpen.Text = "Open Asm";
             btnOpen.UseVisualStyleBackColor = true;
-            btnOpen.Click += btnOpen_Click;
+            btnOpen.Click += BtnOpen_Click;
             // 
             // textAsm
             // 
@@ -94,8 +94,8 @@ namespace CustomRoutineMaker
             textAsm.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             textAsm.Size = new System.Drawing.Size(410, 656);
             textAsm.TabIndex = 5;
-            textAsm.Click += textAsm_Click;
-            textAsm.TextChanged += textAsm_TextChanged;
+            textAsm.Click += TextAsm_Click;
+            textAsm.TextChanged += TextAsm_TextChanged;
             // 
             // statusBar
             // 
@@ -122,7 +122,7 @@ namespace CustomRoutineMaker
             btnNew.TabIndex = 7;
             btnNew.Text = "New File";
             btnNew.UseVisualStyleBackColor = true;
-            btnNew.Click += btnNew_Click;
+            btnNew.Click += BtnNew_Click;
             // 
             // comboBox1
             // 
@@ -166,7 +166,7 @@ namespace CustomRoutineMaker
             btnConvert.TabIndex = 13;
             btnConvert.Text = "Convert";
             btnConvert.UseVisualStyleBackColor = true;
-            btnConvert.Click += btnConvert_Click;
+            btnConvert.Click += BtnConvert_Click;
             // 
             // comboBox2
             // 
@@ -196,7 +196,7 @@ namespace CustomRoutineMaker
             textInput.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             textInput.Size = new System.Drawing.Size(126, 23);
             textInput.TabIndex = 16;
-            textInput.TextChanged += textInput_TextChanged;
+            textInput.TextChanged += TextInput_TextChanged;
             // 
             // label1
             // 

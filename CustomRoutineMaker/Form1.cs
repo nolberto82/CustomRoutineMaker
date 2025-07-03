@@ -19,11 +19,11 @@ namespace CustomRoutineMaker
     {
         string asm_filename;
         string addrtext;
-        AR34 ar34;
+        private readonly AR34 ar34;
 
-        string AssemblersDir = "Assemblers";
+        readonly string AssemblersDir = "Assemblers";
 
-        List<SystemType> systems;
+        readonly List<SystemType> systems;
         public Form1()
         {
             InitializeComponent();
@@ -59,7 +59,7 @@ namespace CustomRoutineMaker
             textAsm.CharacterCasing = CharacterCasing.Lower;
         }
 
-        private void btnOpen_Click(object sender, EventArgs e)
+        private void BtnOpen_Click(object sender, EventArgs e)
         {
             if (!Directory.Exists("ASM"))
                 Directory.CreateDirectory("ASM");
@@ -73,8 +73,7 @@ namespace CustomRoutineMaker
                 asm_filename = ofd.FileName;
                 textAsm.Text = File.ReadAllText(ofd.FileName);
                 string fileout = "out.bin";
-                int index = -1;
-
+                int index;
                 if (textAsm.Text.Contains(fileout))
                 {
                     index = textAsm.Text.IndexOf(fileout);
@@ -129,9 +128,9 @@ namespace CustomRoutineMaker
             }
         }
 
-        private void textAsm_TextChanged(object sender, EventArgs e) => UpdateStatusBar();
+        private void TextAsm_TextChanged(object sender, EventArgs e) => UpdateStatusBar();
 
-        private void btnAssemble_Click(object sender, EventArgs e)
+        private void BtnAssemble_Click(object sender, EventArgs e)
         {
             SaveFile();
 
@@ -163,13 +162,11 @@ namespace CustomRoutineMaker
                 app.RedirectStandardError = true;
                 app.CreateNoWindow = true;
 
-                using (Process process = Process.Start(app))
-                {
-                    using (StreamReader sr = process.StandardOutput)
-                        textGS.Text = sr.ReadToEnd();
-                    using (StreamReader sr = process.StandardError)
-                        textGS.Text += sr.ReadToEnd();
-                }
+                using Process process = Process.Start(app);
+                using (StreamReader sr = process.StandardOutput)
+                    textGS.Text = sr.ReadToEnd();
+                using (StreamReader sr = process.StandardError)
+                    textGS.Text += sr.ReadToEnd();
             }
 
             if (systems[comboBox1.SelectedIndex].shortname == "swi")
@@ -183,11 +180,9 @@ namespace CustomRoutineMaker
                     RedirectStandardOutput = true,
                     CreateNoWindow = true,
                 };
-                using (Process processobjcopy = Process.Start(appobjcopy))
-                {
-                    using (StreamReader sr = processobjcopy.StandardOutput)
-                        textGS.Text += sr.ReadToEnd();
-                }
+                using Process processobjcopy = Process.Start(appobjcopy);
+                using StreamReader sr = processobjcopy.StandardOutput;
+                textGS.Text += sr.ReadToEnd();
             }
             else if (systems[comboBox1.SelectedIndex].shortname == "psv")
             {
@@ -200,19 +195,15 @@ namespace CustomRoutineMaker
                     RedirectStandardOutput = true,
                     CreateNoWindow = true,
                 };
-                using (Process processobjcopy = Process.Start(appobjcopy))
-                {
-                    using (StreamReader sr = processobjcopy.StandardOutput)
-                        textGS.Text += sr.ReadToEnd();
-                }
+                using Process processobjcopy = Process.Start(appobjcopy);
+                using StreamReader sr = processobjcopy.StandardOutput;
+                textGS.Text += sr.ReadToEnd();
             }
 
 
             if (textGS.Text == "")
             {
-                StringBuilder sb = new();
-                StringBuilder sb2 = new();
-                byte[] data = null;
+                byte[] data;
                 if (File.Exists("out.bin"))
                     data = File.ReadAllBytes("out.bin");
                 else
@@ -306,13 +297,13 @@ namespace CustomRoutineMaker
             }
         }
 
-        private void DeleteTempFiles()
+        private static void DeleteTempFiles()
         {
             if (File.Exists("out.bin"))
                 File.Delete("out.bin");
         }
 
-        private void textAsm_Click(object sender, EventArgs e)
+        private void TextAsm_Click(object sender, EventArgs e)
         {
             UpdateStatusBar();
         }
@@ -324,19 +315,18 @@ namespace CustomRoutineMaker
             statusBar.Refresh();
         }
 
-        private void btnNew_Click(object sender, EventArgs e)
+        private void BtnNew_Click(object sender, EventArgs e)
         {
-            StringBuilder sb = new();
             uint addr = systems[comboBox1.SelectedIndex].origaddr;
             uint routine = systems[comboBox1.SelectedIndex].routine;
             string system = systems[comboBox1.SelectedIndex].shortname;
 
             if (system == "psp")
-                textAsm.Text = PSP.Initialize(addr, routine);
+                textAsm.Text = PSP.Initialize();
             else if (system == "psx")
                 textAsm.Text = PS1.Initialize(addr, routine);
             else if (system == "ps2")
-                textAsm.Text = PS2.Initialize(addr, routine);
+                textAsm.Text = PS2.Initialize();
             else if (system == "psv")
                 textAsm.Text = PSV.Initialize(addr, routine, system);
             else if (system == "gba")
@@ -345,7 +335,6 @@ namespace CustomRoutineMaker
                 textAsm.Text = NDS.Initialize(addr, routine, systems[comboBox1.SelectedIndex]);
             else if (system == "swi")
                 textAsm.Text = SWI.Initialize(addr, routine, system);
-
 
             asm_filename = "";
         }
@@ -359,7 +348,7 @@ namespace CustomRoutineMaker
             }
         }
 
-        private void btnConvert_Click(object sender, EventArgs e)
+        private void BtnConvert_Click(object sender, EventArgs e)
         {
             string system = systems.Find(s => s.name == (string)comboBox2.SelectedItem).shortname;
             string[] lines = textPS2.Lines;
@@ -367,17 +356,17 @@ namespace CustomRoutineMaker
 
             if (system == "gba")
             {
-                var codes = GBA.ConvertToARFormat(textPS2.Text.Split(new[] { '\n' }));
+                var codes = GBA.ConvertToARFormat(textPS2.Text.Split(['\n']));
                 if (codes.Count == 0)
                 {
-                    codes = GBA.ConvertToRawFormat(textPS2.Text.Split(new[] { '\n' }));
+                    codes = GBA.ConvertToRawFormat(textPS2.Text.Split(['\n']));
 
-                    for (int i = 0; i < codes.Count(); i++)
+                    for (int i = 0; i < codes.Count; i++)
                     {
                         if (codes[i] == string.Empty)
                             continue;
                         var s = codes[i].Replace(" ", "");
-                        int c = Convert.ToInt32(s.Substring(0, 8), 16) >> 24;
+                        int c = Convert.ToInt32(s[..8], 16) >> 24;
                         int addr = 0;
                         int val = 0;
                         if (c == 0)
@@ -385,12 +374,12 @@ namespace CustomRoutineMaker
                             addr = (Convert.ToInt32(s.Substring(8, 8), 16) & 0xffffff) << 1 | 0x08000000;
                             i++;
                             s = codes[i].Replace(" ", "");
-                            val = Convert.ToInt32(s.Substring(0, 8), 16);
+                            val = Convert.ToInt32(s[..8], 16);
                             textPnach.Text += $"{addr:X8} {val:X8}\r\n";
                         }
                         else
                         {
-                            var a = Convert.ToInt32(s.Substring(0, 8), 16);
+                            var a = Convert.ToInt32(s[..8], 16);
                             addr = (a & 0xf00000) << 4 | (a & 0xfffff);
                             val = Convert.ToInt32(s.Substring(8, 8), 16);
                             textPnach.Text += $"{addr:X8} {val:X8}\r\n";
@@ -402,18 +391,18 @@ namespace CustomRoutineMaker
             }
             else if (system == "ps2")
                 textPnach.Text = string.Join(Environment.NewLine,
-                    PS2.ConvertToPnachFormat(textPS2.Text.Split(new[] { '\n' },
-                    StringSplitOptions.RemoveEmptyEntries).ToArray()));
+                    PS2.ConvertToPnachFormat([.. textPS2.Text.Split(['\n'],
+                    StringSplitOptions.RemoveEmptyEntries)]));
             else if (system == "psp")
                 textPnach.Text = string.Join(Environment.NewLine,
-                    PSP.ConvertToGHFormat(textPS2.Text.Split(new[] { '\n' },
-                    StringSplitOptions.RemoveEmptyEntries).ToArray()));
+                    PSP.ConvertToGHFormat([.. textPS2.Text.Split(['\n'],
+                    StringSplitOptions.RemoveEmptyEntries)]));
             else if (system == "psv")
                 textPnach.Text = string.Join(Environment.NewLine,
                     PSV.ConvertSegAddress(textPS2.Text));
         }
 
-        private void textGS_MouseDown(object sender, MouseEventArgs e)
+        private void TextGS_MouseDown(object sender, MouseEventArgs e)
         {
             var count = textGS.SelectedText.Split(Environment.NewLine).Length;
 
@@ -421,7 +410,7 @@ namespace CustomRoutineMaker
                 UpdateStatusBar($"{count:X2}");
         }
 
-        private void textGS_MouseMove(object sender, MouseEventArgs e)
+        private void TextGS_MouseMove(object sender, MouseEventArgs e)
         {
             var count = textGS.SelectedText.Split(Environment.NewLine).Length;
 
@@ -429,7 +418,7 @@ namespace CustomRoutineMaker
                 UpdateStatusBar($"- Selection: {count:X2}");
         }
 
-        private void textInput_TextChanged(object sender, EventArgs e)
+        private void TextInput_TextChanged(object sender, EventArgs e)
         {
             textInput.Text = textInput.Text.Replace(" ", "");
             if (textInput.Text.Length > 0 && textInput.Text.All(c => "0123456789abcdefABCDEF".Contains(c)))

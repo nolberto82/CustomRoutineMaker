@@ -12,7 +12,7 @@ namespace CustomRoutineMaker.Classes;
 
 internal class PSP
 {
-    public static string Initialize(uint addr, uint routine)
+    public static string Initialize()
     {
         StringBuilder sb = new();
 
@@ -50,9 +50,7 @@ internal class PSP
     public static List<string> Run(byte[] data, uint addr, string asm)
     {
         List<string> list = [];
-        StringBuilder[] sb = new StringBuilder[2];
-        sb[0] = new();
-        sb[1] = new();
+        StringBuilder[] sb = [new(), new()];
         int linesnum = 0;
 
         for (int i = 0; i < data.Length / 4; i++)
@@ -119,29 +117,39 @@ internal class PSP
 
         for (int i = 0; i < lines.Length; i++)
         {
-            if (lines[i].Length < 17) continue;
+            string ns = lines[i].ReplaceLineEndings().Replace(" ", "");
+            ns = new string([.. ns.Where(c => char.IsLetterOrDigit(c))]).Replace("0x", "");
+            if (ns.Length < 16) continue;
+            if (!ns.All(char.IsAsciiHexDigit))
+            {
+                list.Add($"_C0 {lines[i]}");
+                pspaddrs.Add($"{lines[i]}");
+                continue;
+            }
             if (lines[i].StartsWith('\r') || lines[i].StartsWith("\r\n"))
             {
                 list.Add(" ");
                 continue;
             }
 
-            if (lines[i].Substring(0, 2) == "_C")
-                list.Add(lines[i].Substring(3, lines[i].Length - 3).TrimStart().Replace("\r", ""));
+            if (lines[i][..2] == "_C")
+                list.Add(lines[i][3..].TrimStart().Replace("\r", ""));
             else
             {
                 lines[i] = lines[i].ToUpper().Replace("X", "x").Replace("\r", "").Replace("_L ", "");
                 var a = lines[i].TrimStart().Split(" ");
                 var v = Convert.ToInt32(a[0], 16);
-                if (((v >> 24) & 0xf) >= 8)
+                var type = (v >> 24) & 0xff;
+                if (type >= 8)
                 {
-                    lines[i] = $"_L 0x{v - 0x08800000 | 0x20000000:X8} ";
+                    lines[i] = $"_L 0x{(type == 8 ? v - 0x08800000 | 0x20000000 : v):X8} ";
                     lines[i] += $"0x{a[1]}";
                 }
-                else if (lines[i].Substring(0, 2) == "_L")
+                else if (lines[i][..2] == "_L")
                     lines[i] = $"_L 0x{lines[i][..8]} 0x{lines[i][9..]}";
 
-                pspaddrs.Add($"0x{v - 0x08800000 | 0x20000000:X8} 0x{a[1]}");
+
+                pspaddrs.Add($"0x{(type == 8 ? v - 0x08800000 | 0x20000000 : v):X8} 0x{a[1]}");
 
                 if (cwcheat)
                     list.Add($"_L {lines[i]}");

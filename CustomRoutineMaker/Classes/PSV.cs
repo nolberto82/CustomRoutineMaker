@@ -96,7 +96,7 @@ internal class PSV
         }
 
 
-        var temp = sb.ToString().Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        var temp = sb.ToString().Split(['\n'], StringSplitOptions.RemoveEmptyEntries).ToList();
         temp.Add("");
 
         for (int i = 0; i < temp.Count; i++)

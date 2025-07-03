@@ -63,7 +63,7 @@ internal class NDS
         }
 
         bool isthumb = asm.IndexOf(".thumb") > -1 ? true : false;
-        var lines = sb.ToString().Replace(" ", "").Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        var lines = sb.ToString().Replace(" ", "").Split([Environment.NewLine], StringSplitOptions.RemoveEmptyEntries).ToList();
 
         List<string> bl = [];
         for (int h = lines.Count - 1; h >= 0; h--)
@@ -75,7 +75,7 @@ internal class NDS
             }
         }
 
-        lines = lines.Select(l => l.Substring(8, 8)).ToList();
+        lines = [.. lines.Select(l => l.Substring(8, 8))];
 
         if ((lines.Count % 2) > 0)
             lines.Add("00000000");

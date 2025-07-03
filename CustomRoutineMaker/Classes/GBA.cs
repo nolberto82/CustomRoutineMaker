@@ -69,7 +69,7 @@ internal class GBA
                     continue;
 
                 var enc = AR34.Encode(lines, words, ref id);
-                var code = AR34.Encrypt(enc.ToArray());
+                var code = AR34.Encrypt([.. enc]);
                 foreach (string st in code)
                     list.Add(st);
 
@@ -121,7 +121,7 @@ internal class GBA
                 continue;
 
             var enc = AR34.Encode(s, words, ref id);
-            var code = AR34.Encrypt(enc.ToArray());
+            var code = AR34.Encrypt([.. enc]);
             foreach (string st in code)
                 list.Add(st);
         }
@@ -151,7 +151,7 @@ internal class GBA
             string[] words = s.Split(" ");
 
             var enc = AR34.Decode(s, words, ref id);
-            var code = AR34.Decrypt(enc.ToArray());
+            var code = AR34.Decrypt([.. enc]);
             foreach (string st in code)
                 list.Add(st);
         }
