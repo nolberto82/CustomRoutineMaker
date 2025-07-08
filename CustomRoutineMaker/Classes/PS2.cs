@@ -108,14 +108,11 @@ internal class PS2
 
         for (int i = 0; i < lines.Length; i++)
         {
-            string ns = lines[i].ReplaceLineEndings().Replace(" ","");
+            string ns = lines[i].ReplaceLineEndings().Replace(" ", "");
             ns = new string([.. ns.Where(c => char.IsLetterOrDigit(c))]);
             if (ns.StartsWith('\r') || ns.StartsWith("\r\n"))
-            {
                 list.Add(" ");
-                continue;
-            }
-            if (ns.All(char.IsAsciiHexDigit))
+            else if (ns.All(char.IsAsciiHexDigit))
             {
                 if (ns.Length < 16)
                 {
@@ -123,10 +120,9 @@ internal class PS2
                     continue;
                 }
                 list.Add($"patch=1,EE,{ns[..8]:X4},extended,{ns.Substring(8, 8):X8}");
-                continue;
             }
-
-            list.Add($"[{ns.Replace("\r", "")}]");
+            else
+                list.Add($"[{lines[i].Replace("\r", "")}]");
         }
 
         return list;
