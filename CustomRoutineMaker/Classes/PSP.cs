@@ -119,13 +119,16 @@ internal class PSP
         {
             string ns = lines[i].ReplaceLineEndings().Replace(" ", "");
             ns = new string([.. ns.Where(c => char.IsLetterOrDigit(c))]).Replace("0x", "");
-            if (ns.Length < 16) continue;
+
             if (!ns.All(char.IsAsciiHexDigit))
             {
                 list.Add($"_C0 {lines[i]}");
                 pspaddrs.Add($"{lines[i]}");
                 continue;
             }
+
+            if (lines[i].Length < 16) continue;
+
             if (lines[i].StartsWith('\r') || lines[i].StartsWith("\r\n"))
             {
                 list.Add(" ");
