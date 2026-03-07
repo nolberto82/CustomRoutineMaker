@@ -21,6 +21,7 @@ internal class PS2
 
         sb.AppendLine($".org\t0x20000000");
         sb.AppendLine($"j\t0x200A0000");
+        sb.AppendLine($"return:");
 
         sb.AppendLine("");
 
@@ -35,7 +36,7 @@ internal class PS2
         sb.AppendLine("\n");
         sb.AppendLine("\n");
 
-        sb.AppendLine($"j\t0x200A0008");
+        sb.AppendLine($"j\treturn+4");
 
         sb.AppendLine(".close");
 

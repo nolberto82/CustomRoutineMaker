@@ -109,7 +109,6 @@ internal class PSP
         List<string> list = [];
         List<string> pspaddrs = [];
 
-
         if (lines.Length == 0 || lines[0] == "" || lines == null)
             return list;
 
@@ -120,7 +119,7 @@ internal class PSP
             string ns = lines[i].ReplaceLineEndings().Replace(" ", "");
             ns = new string([.. ns.Where(c => char.IsLetterOrDigit(c))]).Replace("0x", "");
 
-            if (!ns.All(char.IsAsciiHexDigit))
+            if (!ns.StartsWith("C") && !ns.StartsWith("L") && !ns.All(char.IsAsciiHexDigit))
             {
                 list.Add($"_C0 {lines[i]}");
                 pspaddrs.Add($"{lines[i]}");
@@ -136,7 +135,10 @@ internal class PSP
             }
 
             if (lines[i][..2] == "_C")
+            {
                 list.Add(lines[i][3..].TrimStart().Replace("\r", ""));
+                pspaddrs.Add(lines[i][3..].TrimStart().Replace("\r", ""));
+            }
             else
             {
                 lines[i] = lines[i].ToUpper().Replace("X", "x").Replace("\r", "").Replace("_L ", "");
@@ -146,7 +148,10 @@ internal class PSP
                 if (type >= 8)
                 {
                     lines[i] = $"_L 0x{(type == 8 ? v - 0x08800000 | 0x20000000 : v):X8} ";
-                    lines[i] += $"0x{a[1]}";
+                    if (cwcheat)
+                        lines[i] += $"0x{a[1]}";
+                    else
+                        lines[i] += $"{a[1]}";
                 }
                 else if (lines[i][..2] == "_L")
                     lines[i] = $"_L 0x{lines[i][..8]} 0x{lines[i][9..]}";
@@ -161,7 +166,7 @@ internal class PSP
             }
         }
 
-        list.Add("");
+        list.Add("\n");
         list.AddRange(pspaddrs);
 
         return list;
