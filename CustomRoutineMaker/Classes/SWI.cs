@@ -8,7 +8,7 @@ namespace CustomRoutineMaker.Classes;
 
 internal class SWI
 {
-    public static string Initialize(uint addr, uint routine, string arch)
+    public static string Initialize()
     {
         StringBuilder sb = new();
 
@@ -40,9 +40,8 @@ internal class SWI
         return sb.ToString();
     }
 
-    public static List<string> Run(byte[] data, uint addr, string asm, bool is64)
+    public static List<string> Run(byte[] data, uint addr, bool is64)
     {
-        List<string> list = [];
         StringBuilder sb = new();
 
         int size = 4;
@@ -64,7 +63,6 @@ internal class SWI
             addr += (uint)size;
         }
 
-        bool isthumb = asm.IndexOf(".thumb") > -1 ? true : false;
         var temp = sb.ToString().Split(['\n'], StringSplitOptions.RemoveEmptyEntries).ToList();
         List<string> bl = [];
         for (int k = temp.Count - 1; k >= 0; k--)
@@ -80,8 +78,6 @@ internal class SWI
         temp.Add("");
 
         List<string> lines = [];
-        List<string> values = [];
-        List<string> bytes = [];
 
         for (int k = 0; k < bl.Count; k++)
         {

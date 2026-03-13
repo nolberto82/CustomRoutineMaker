@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.DirectoryServices;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -11,19 +12,20 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using static System.Windows.Forms.LinkLabel;
 
 namespace CustomRoutineMaker
 {
     [SupportedOSPlatform("windows")]
     public partial class Form1 : Form
     {
-        string asm_filename;
-        string addrtext;
+        private string asm_filename;
+        private string addrtext;
         private readonly AR34 ar34;
 
-        readonly string AssemblersDir = "Assemblers";
+        private readonly string AssemblersDir = "Assemblers";
 
-        readonly List<SystemType> systems;
+        private readonly List<SystemType> systems;
         public Form1()
         {
             InitializeComponent();
@@ -127,8 +129,6 @@ namespace CustomRoutineMaker
                 File.WriteAllText(asm_filename, textAsm.Text);
             }
         }
-
-        private void TextAsm_TextChanged(object sender, EventArgs e) => UpdateStatusBar();
 
         private void BtnAssemble_Click(object sender, EventArgs e)
         {
@@ -235,27 +235,27 @@ namespace CustomRoutineMaker
                 else if (system == "nds")
                 {
                     if (name == "Nintendo Switch")
-                        textGS.Text = string.Join(Environment.NewLine, SWI.Run(data, addr, textAsm.Text, system == "swi"));
+                        textGS.Text = string.Join(Environment.NewLine, SWI.Run(data, addr, system == "swi"));
                     else
                         textGS.Text = string.Join(Environment.NewLine, NDS.Run(data, 0x02000000 | addr, textAsm.Text));
                 }
                 else if (system == "3ds")
                     textGS.Text = string.Join(Environment.NewLine, NDS.Run(data, addr, textAsm.Text));
                 else if (system == "swi")
-                    textGS.Text = string.Join(Environment.NewLine, SWI.Run(data, addr, textAsm.Text, system == "swi"));
+                    textGS.Text = string.Join(Environment.NewLine, SWI.Run(data, addr, system == "swi"));
                 else if (system == "psp")
                     textGS.Text = string.Join(Environment.NewLine, PSP.Run(data, addr, textAsm.Text));
                 else if (system == "ps2")
                     textGS.Text = string.Join(Environment.NewLine, PS2.Run(data, addr, textAsm.Text));
                 else if (system == "psv")
                 {
-                    (List<string> list, string bytes) = PSV.Run(data, addr, textAsm.Text, system == "psv");
+                    (List<string> list, string bytes) = PSV.Run(data, addr, textAsm.Text);
                     textGS.Text = $"{string.Join(Environment.NewLine, list)}\r\n\r\n{bytes}";
                 }
 
                 else if (system == "gba")
                 {
-                    (List<string> ARcodes, List<string> Rawcodes, List<string> Bytes) = GBA.Run(data, addr, textAsm.Text);
+                    (List<string> ARcodes, List<string> Rawcodes, List<string> Bytes) = GBA.Run(data, addr);
                     textGS.Text = string.Join(Environment.NewLine, ARcodes);
                     textGS.Text += "\r\n\r\n";
                     int c = 0;
@@ -317,24 +317,22 @@ namespace CustomRoutineMaker
 
         private void BtnNew_Click(object sender, EventArgs e)
         {
-            uint addr = systems[comboBox1.SelectedIndex].origaddr;
-            uint routine = systems[comboBox1.SelectedIndex].routine;
             string system = systems[comboBox1.SelectedIndex].shortname;
 
             if (system == "psp")
                 textAsm.Text = PSP.Initialize();
             else if (system == "psx")
-                textAsm.Text = PS1.Initialize(addr, routine);
+                textAsm.Text = PS1.Initialize();
             else if (system == "ps2")
                 textAsm.Text = PS2.Initialize();
             else if (system == "psv")
-                textAsm.Text = PSV.Initialize(addr, routine, system);
+                textAsm.Text = PSV.Initialize();
             else if (system == "gba")
-                textAsm.Text = GBA.Initialize(addr, routine);
+                textAsm.Text = GBA.Initialize();
             else if (system == "nds" || system == "3ds")
-                textAsm.Text = NDS.Initialize(addr, routine, systems[comboBox1.SelectedIndex]);
+                textAsm.Text = NDS.Initialize(systems[comboBox1.SelectedIndex]);
             else if (system == "swi")
-                textAsm.Text = SWI.Initialize(addr, routine, system);
+                textAsm.Text = SWI.Initialize();
 
             asm_filename = "";
         }
@@ -432,6 +430,29 @@ namespace CustomRoutineMaker
                     textResult2.Text += $"{c:X2}";
                 }
             }
+        }
+
+        private void TextAsm_TextChanged(object sender, EventArgs e)
+        {
+            List<string> contents = [.. textAsm.Lines];
+            for (int i = 0; i < contents.Count; i++)
+            {
+                var text = contents[i];
+                if (text == string.Empty) continue;
+                if (text.StartsWith('$'))
+                {
+                    contents.RemoveAt(i);
+                    continue;
+                }
+                text = text.Replace("  ", "").Replace(" #$", "0x").Replace(", ", ",").Replace("  ", "");
+                var split = text.Split(" ");
+                if (split.Length > 1)
+                {
+                    text = $"{split[0]}\t{split[1]}";
+                }
+                contents[i] = text;
+            }
+            textAsm.Text = string.Join(Environment.NewLine, contents);
         }
     }
 }

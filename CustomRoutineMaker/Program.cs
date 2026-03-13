@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace CustomRoutineMaker
 {
-	static class Program
+    internal static class Program
 	{
 		/// <summary>
 		/// The main entry point for the application.
@@ -15,7 +15,7 @@ namespace CustomRoutineMaker
 		///
 		[SupportedOSPlatform("windows")]
 		[STAThread]
-		static void Main()
+        private static void Main()
 		{
 			Application.EnableVisualStyles();
 			Application.SetHighDpiMode(HighDpiMode.SystemAware);

@@ -14,7 +14,7 @@ namespace CustomRoutineMaker.Classes;
 
 internal class GBA
 {
-    public static string Initialize(uint addr, uint routine)
+    public static string Initialize()
     {
         StringBuilder sb = new();
 
@@ -40,15 +40,13 @@ internal class GBA
         return sb.ToString();
     }
 
-    public static (List<string>, List<string>, List<string>) Run(byte[] data, uint addr, string asm)
+    public static (List<string>, List<string>, List<string>) Run(byte[] data, uint addr)
     {
         AR34 AR34 = new();
         List<string> list = [];
         List<string> unlist = [];
         List<string> bytes = [];
-        StringBuilder sb = new();
         int id = 0xc;
-        bool is_arm = asm.IndexOf(".arm") > -1 ? true : false;
         bool branch = false;
 
         for (int i = (int)addr; i < data.Length;)
@@ -162,8 +160,8 @@ internal class GBA
     private static string[] GetWords(string s)
     {
         string[] words = null;
-        uint addr = Convert.ToUInt32(s.Substring(0, 8), 16);
-        var v = s.Substring(8).Trim();
+        uint addr = Convert.ToUInt32(s[..8], 16);
+        var v = s[8..].Trim();
         uint value = Convert.ToUInt32(v, 16);
         int codetype = (int)(addr >> 24);
 
@@ -171,17 +169,16 @@ internal class GBA
         {
             words = new string[4];
             string line1 = $"{addr + 0:X8} {value & 0xffff:X4}";
-            string line2 = $"{addr + 2:X8} {(value & 0xffff0000) >> 16:X4}";
             words[0] = "00000000";
-            words[1] = line1.Substring(0, 8);
+            words[1] = line1[..8];
             words[2] = line1.Substring(9, 4).PadLeft(8, '0');
             words[3] = "00000000";
         }
         else if (codetype == 2)
         {
             words = new string[2];
-            words[0] = s.Substring(0, 8);
-            words[1] = v.Substring(0, v.Length);
+            words[0] = s[..8];
+            words[1] = v[..];
         }
 
         return words;
@@ -190,8 +187,8 @@ internal class GBA
     private static string[] GetDecodeWords(string s)
     {
         string[] words = null;
-        uint addr = Convert.ToUInt32(s.Substring(0, 8), 16);
-        var v = s.Substring(8).Trim();
+        uint addr = Convert.ToUInt32(s[..8], 16);
+        var v = s[8..].Trim();
         uint value = Convert.ToUInt32(v, 16);
         int codetype = (int)(addr >> 28);
 
@@ -199,17 +196,16 @@ internal class GBA
         {
             words = new string[4];
             string line1 = $"{addr + 0:X8} {value & 0xffff:X4}";
-            string line2 = $"{addr + 2:X8} {(value & 0xffff0000) >> 16:X4}";
             words[0] = "00000000";
-            words[1] = line1.Substring(0, 8);
+            words[1] = line1[..8];
             words[2] = line1.Substring(9, 4).PadLeft(8, '0');
             words[3] = "00000000";
         }
         else if (codetype == 2)
         {
             words = new string[2];
-            words[0] = s.Substring(0, 8);
-            words[1] = v.Substring(0, v.Length);
+            words[0] = s[..8];
+            words[1] = v[..];
         }
 
         return words;

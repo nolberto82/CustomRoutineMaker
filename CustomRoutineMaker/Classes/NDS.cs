@@ -9,7 +9,7 @@ namespace CustomRoutineMaker.Classes;
 
 internal class NDS
 {
-    public static string Initialize(uint addr, uint routine, SystemType sys)
+    public static string Initialize(SystemType sys)
     {
         StringBuilder sb = new();
 
@@ -62,7 +62,7 @@ internal class NDS
             addr += 4;
         }
 
-        bool isthumb = asm.IndexOf(".thumb") > -1 ? true : false;
+        bool isthumb = asm.IndexOf(".thumb") > -1;
         var lines = sb.ToString().Replace(" ", "").Split([Environment.NewLine], StringSplitOptions.RemoveEmptyEntries).ToList();
 
         List<string> bl = [];

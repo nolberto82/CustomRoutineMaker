@@ -34,7 +34,6 @@ internal class PS2
 
         sb.AppendLine("\n");
         sb.AppendLine("\n");
-        sb.AppendLine("\n");
 
         sb.AppendLine($"j\treturn+4");
 
@@ -109,7 +108,8 @@ internal class PS2
 
         for (int i = 0; i < lines.Length; i++)
         {
-            string ns = lines[i].ReplaceLineEndings().Replace(" ", "");
+            string ns = lines[i].ReplaceLineEndings().Replace("patch=1,EE,", "").
+               Replace(",extended,", "").Replace(" ", "");
             ns = new string([.. ns.Where(c => char.IsLetterOrDigit(c))]);
             if (ns.StartsWith('\r') || ns.StartsWith("\r\n"))
                 list.Add(" ");
@@ -120,10 +120,8 @@ internal class PS2
                     list.Add(" ");
                     continue;
                 }
-                list.Add($"patch=1,EE,{ns[..8]:X4},extended,{ns.Substring(8, 8):X8}");
+                list.Add($"{ns[..8]:X4} {ns.Substring(8, 8):X8}");
             }
-            else
-                list.Add($"[{lines[i].Replace("\r", "")}]");
         }
 
         return list;

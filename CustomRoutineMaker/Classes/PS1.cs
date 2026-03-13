@@ -8,7 +8,7 @@ namespace CustomRoutineMaker.Classes;
 
 internal class PS1
 {
-    public static string Initialize(uint addr, uint routine)
+    public static string Initialize()
     {
         StringBuilder sb = new();
 
@@ -46,7 +46,6 @@ internal class PS1
     {
         List<string> list = [];
         StringBuilder sb = new();
-        sb = new();
         int linesnum = 0;
 
         for (int i = 0; i < data.Length / 4; i++)

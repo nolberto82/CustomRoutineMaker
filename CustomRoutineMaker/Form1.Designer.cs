@@ -32,7 +32,6 @@ namespace CustomRoutineMaker
             btnAsm = new System.Windows.Forms.Button();
             btnAssemble = new System.Windows.Forms.Button();
             btnOpen = new System.Windows.Forms.Button();
-            textAsm = new System.Windows.Forms.TextBox();
             statusBar = new System.Windows.Forms.StatusStrip();
             statusAsm = new System.Windows.Forms.ToolStripStatusLabel();
             btnNew = new System.Windows.Forms.Button();
@@ -47,6 +46,8 @@ namespace CustomRoutineMaker
             textResult = new System.Windows.Forms.TextBox();
             label2 = new System.Windows.Forms.Label();
             textResult2 = new System.Windows.Forms.TextBox();
+            textBox1 = new System.Windows.Forms.TextBox();
+            textAsm = new System.Windows.Forms.TextBox();
             statusBar.SuspendLayout();
             SuspendLayout();
             // 
@@ -81,21 +82,6 @@ namespace CustomRoutineMaker
             btnOpen.Text = "Open Asm";
             btnOpen.UseVisualStyleBackColor = true;
             btnOpen.Click += BtnOpen_Click;
-            // 
-            // textAsm
-            // 
-            textAsm.AcceptsTab = true;
-            textAsm.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            textAsm.Font = new System.Drawing.Font("Consolas", 11.25F);
-            textAsm.Location = new System.Drawing.Point(11, 79);
-            textAsm.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            textAsm.Multiline = true;
-            textAsm.Name = "textAsm";
-            textAsm.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            textAsm.Size = new System.Drawing.Size(410, 656);
-            textAsm.TabIndex = 5;
-            textAsm.Click += TextAsm_Click;
-            textAsm.TextChanged += TextAsm_TextChanged;
             // 
             // statusBar
             // 
@@ -233,11 +219,29 @@ namespace CustomRoutineMaker
             textResult2.Size = new System.Drawing.Size(128, 23);
             textResult2.TabIndex = 20;
             // 
+            // textBox1
+            // 
+            textBox1.Location = new System.Drawing.Point(699, 719);
+            textBox1.Name = "textBox1";
+            textBox1.Size = new System.Drawing.Size(100, 25);
+            textBox1.TabIndex = 21;
+            // 
+            // textAsm
+            // 
+            textAsm.Location = new System.Drawing.Point(11, 80);
+            textAsm.Multiline = true;
+            textAsm.Name = "textAsm";
+            textAsm.Size = new System.Drawing.Size(410, 654);
+            textAsm.TabIndex = 23;
+            textAsm.TextChanged += TextAsm_TextChanged;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(8F, 18F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             ClientSize = new System.Drawing.Size(1184, 761);
+            Controls.Add(textAsm);
+            Controls.Add(textBox1);
             Controls.Add(textResult2);
             Controls.Add(label2);
             Controls.Add(textResult);
@@ -251,7 +255,6 @@ namespace CustomRoutineMaker
             Controls.Add(comboBox1);
             Controls.Add(btnNew);
             Controls.Add(statusBar);
-            Controls.Add(textAsm);
             Controls.Add(btnOpen);
             Controls.Add(btnAssemble);
             Controls.Add(btnAsm);
@@ -272,7 +275,6 @@ namespace CustomRoutineMaker
         private global::System.Windows.Forms.Button btnAsm;
 		private global::System.Windows.Forms.Button btnAssemble;
 		private global::System.Windows.Forms.Button btnOpen;
-		private global::System.Windows.Forms.TextBox textAsm;
 		private global::System.Windows.Forms.StatusStrip statusBar;
 		private global::System.Windows.Forms.ToolStripStatusLabel statusAsm;
 		private global::System.Windows.Forms.Button btnNew;
@@ -287,6 +289,8 @@ namespace CustomRoutineMaker
         private System.Windows.Forms.TextBox textResult;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox textResult2;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox textAsm;
     }
 }
 

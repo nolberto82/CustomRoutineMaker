@@ -13,7 +13,7 @@ namespace CustomRoutineMaker.Classes;
 
 internal class PSV
 {
-    public static string Initialize(uint addr, uint routine, string arch)
+    public static string Initialize()
     {
         StringBuilder sb = new();
 
@@ -49,13 +49,13 @@ internal class PSV
         return sb.ToString();
     }
 
-    public static (List<string>, string) Run(byte[] data, uint addr, string asm, bool is64)
+    public static (List<string>, string) Run(byte[] data, uint addr, string asm)
     {
         List<string> lines = [];
         List<byte> bytes = [];
         StringBuilder sb = new();
         int size = 2;
-        uint baseaddr = asm.IndexOf(".aslr") == -1 ? 0x80000000 : 0;
+        uint baseaddr = !asm.Contains(".aslr", StringComparison.CurrentCulture) ? 0x80000000 : 0;
 
         for (int i = 0; i < data.Length;)
         {
