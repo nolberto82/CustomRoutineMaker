@@ -29,7 +29,6 @@ namespace CustomRoutineMaker
         /// </summary>
         private void InitializeComponent()
         {
-            btnAsm = new System.Windows.Forms.Button();
             btnAssemble = new System.Windows.Forms.Button();
             btnOpen = new System.Windows.Forms.Button();
             statusBar = new System.Windows.Forms.StatusStrip();
@@ -48,25 +47,16 @@ namespace CustomRoutineMaker
             textResult2 = new System.Windows.Forms.TextBox();
             textBox1 = new System.Windows.Forms.TextBox();
             textAsm = new System.Windows.Forms.TextBox();
+            btnFormat = new System.Windows.Forms.Button();
             statusBar.SuspendLayout();
             SuspendLayout();
             // 
-            // btnAsm
-            // 
-            btnAsm.Location = new System.Drawing.Point(427, 38);
-            btnAsm.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            btnAsm.Name = "btnAsm";
-            btnAsm.Size = new System.Drawing.Size(190, 32);
-            btnAsm.TabIndex = 2;
-            btnAsm.Text = "Save Asm";
-            btnAsm.UseVisualStyleBackColor = true;
-            // 
             // btnAssemble
             // 
-            btnAssemble.Location = new System.Drawing.Point(644, 38);
+            btnAssemble.Location = new System.Drawing.Point(427, 38);
             btnAssemble.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             btnAssemble.Name = "btnAssemble";
-            btnAssemble.Size = new System.Drawing.Size(190, 32);
+            btnAssemble.Size = new System.Drawing.Size(407, 32);
             btnAssemble.TabIndex = 3;
             btnAssemble.Text = "Assemble";
             btnAssemble.UseVisualStyleBackColor = true;
@@ -74,10 +64,10 @@ namespace CustomRoutineMaker
             // 
             // btnOpen
             // 
-            btnOpen.Location = new System.Drawing.Point(241, 39);
+            btnOpen.Location = new System.Drawing.Point(155, 38);
             btnOpen.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             btnOpen.Name = "btnOpen";
-            btnOpen.Size = new System.Drawing.Size(180, 32);
+            btnOpen.Size = new System.Drawing.Size(125, 32);
             btnOpen.TabIndex = 4;
             btnOpen.Text = "Open Asm";
             btnOpen.UseVisualStyleBackColor = true;
@@ -104,7 +94,7 @@ namespace CustomRoutineMaker
             btnNew.Location = new System.Drawing.Point(11, 38);
             btnNew.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             btnNew.Name = "btnNew";
-            btnNew.Size = new System.Drawing.Size(180, 32);
+            btnNew.Size = new System.Drawing.Size(125, 32);
             btnNew.TabIndex = 7;
             btnNew.Text = "New File";
             btnNew.UseVisualStyleBackColor = true;
@@ -233,13 +223,24 @@ namespace CustomRoutineMaker
             textAsm.Name = "textAsm";
             textAsm.Size = new System.Drawing.Size(410, 654);
             textAsm.TabIndex = 23;
-            textAsm.TextChanged += TextAsm_TextChanged;
+            // 
+            // btnFormat
+            // 
+            btnFormat.Location = new System.Drawing.Point(297, 38);
+            btnFormat.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            btnFormat.Name = "btnFormat";
+            btnFormat.Size = new System.Drawing.Size(125, 32);
+            btnFormat.TabIndex = 24;
+            btnFormat.Text = "Format";
+            btnFormat.UseVisualStyleBackColor = true;
+            btnFormat.Click += BtnFormat_Click;
             // 
             // Form1
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(8F, 18F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             ClientSize = new System.Drawing.Size(1184, 761);
+            Controls.Add(btnFormat);
             Controls.Add(textAsm);
             Controls.Add(textBox1);
             Controls.Add(textResult2);
@@ -257,7 +258,6 @@ namespace CustomRoutineMaker
             Controls.Add(statusBar);
             Controls.Add(btnOpen);
             Controls.Add(btnAssemble);
-            Controls.Add(btnAsm);
             Font = new System.Drawing.Font("Consolas", 11.25F);
             FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
@@ -272,8 +272,7 @@ namespace CustomRoutineMaker
         }
 
         #endregion
-        private global::System.Windows.Forms.Button btnAsm;
-		private global::System.Windows.Forms.Button btnAssemble;
+        private global::System.Windows.Forms.Button btnAssemble;
 		private global::System.Windows.Forms.Button btnOpen;
 		private global::System.Windows.Forms.StatusStrip statusBar;
 		private global::System.Windows.Forms.ToolStripStatusLabel statusAsm;
@@ -291,6 +290,7 @@ namespace CustomRoutineMaker
         private System.Windows.Forms.TextBox textResult2;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.TextBox textAsm;
+        private System.Windows.Forms.Button btnFormat;
     }
 }
 

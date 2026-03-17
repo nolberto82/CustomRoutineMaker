@@ -55,7 +55,6 @@ namespace CustomRoutineMaker
                     comboBox2.Items.Add(s.name);
             }
 
-            btnAsm.Enabled = false;
             comboBox1.SelectedIndex = 0;
             comboBox2.SelectedIndex = 1;
             textAsm.CharacterCasing = CharacterCasing.Lower;
@@ -151,7 +150,6 @@ namespace CustomRoutineMaker
                     exename = $"{AssemblersDir}/arm-vita-eabi-as.exe";
                     args = "-mfpu=neon-fp16";
                 }
-
 
                 ProcessStartInfo app = new();
                 app.WorkingDirectory = Environment.CurrentDirectory;
@@ -432,7 +430,7 @@ namespace CustomRoutineMaker
             }
         }
 
-        private void TextAsm_TextChanged(object sender, EventArgs e)
+        private void FormatText()
         {
             List<string> contents = [.. textAsm.Lines];
             for (int i = 0; i < contents.Count; i++)
@@ -453,6 +451,12 @@ namespace CustomRoutineMaker
                 contents[i] = text;
             }
             textAsm.Text = string.Join(Environment.NewLine, contents);
+        }
+
+        private void BtnFormat_Click(object sender, EventArgs e)
+        {
+            FormatText();
+            SaveFile();
         }
     }
 }
