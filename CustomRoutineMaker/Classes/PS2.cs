@@ -81,7 +81,7 @@ internal class PS2
             while (asm[index] != 'x')
                 index++;
 
-            uint evalue = System.Convert.ToUInt32(asm.Substring(index + 1, 8), 16);
+            uint evalue = Convert.ToUInt32(asm.Substring(index + 1, 8), 16);
 
             if (index > -1 && evalue > 0)
             {

@@ -111,6 +111,7 @@ namespace CustomRoutineMaker
             // 
             // textPS2
             // 
+            textPS2.AcceptsTab = true;
             textPS2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             textPS2.Font = new System.Drawing.Font("Consolas", 11.25F);
             textPS2.Location = new System.Drawing.Point(840, 79);
@@ -156,6 +157,7 @@ namespace CustomRoutineMaker
             // 
             // textGS
             // 
+            textGS.AcceptsTab = true;
             textGS.Font = new System.Drawing.Font("Consolas", 9.75F);
             textGS.Location = new System.Drawing.Point(427, 80);
             textGS.Multiline = true;
@@ -218,6 +220,7 @@ namespace CustomRoutineMaker
             // 
             // textAsm
             // 
+            textAsm.AcceptsTab = true;
             textAsm.Location = new System.Drawing.Point(11, 80);
             textAsm.Multiline = true;
             textAsm.Name = "textAsm";

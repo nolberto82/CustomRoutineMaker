@@ -13,7 +13,7 @@ internal class PS1
         StringBuilder sb = new();
 
         sb.AppendLine(@".psx");
-        sb.AppendLine(@".create ""out.bin"", 0x00000000");
+        sb.AppendLine(@".create ""out.bin"", 0x80000000");
         sb.AppendLine(@".definelabel hook, 0x80000000");
         sb.AppendLine(@".definelabel function, 0x80007600");
 
@@ -25,17 +25,17 @@ internal class PS1
         sb.AppendLine("");
 
         sb.AppendLine($"//ecode:");
-        sb.AppendLine($"//.dw\t 0xd0000000");
+        sb.AppendLine($"//.dw\t0xd0000000");
         sb.AppendLine($"//evalue:");
-        sb.AppendLine($"//.dh\t 0x0000\r\n");
+        sb.AppendLine($"//.dh\t0x0000\r\n");
 
-        sb.AppendLine($".org\t function");
+        sb.AppendLine($".org\tfunction");
 
         sb.AppendLine("");
         sb.AppendLine("");
         sb.AppendLine("");
 
-        sb.AppendLine($"j\t hook+8");
+        sb.AppendLine($"j\thook+8");
 
         sb.AppendLine(".close");
 

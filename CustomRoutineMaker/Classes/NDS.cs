@@ -28,9 +28,9 @@ internal class NDS
         sb.AppendLine("");
 
         sb.AppendLine($"//ecode:");
-        sb.AppendLine($"//.dw\t 0xe0000000");
+        sb.AppendLine($"//.dw\t0xe0000000");
         sb.AppendLine($"//evalue:");
-        sb.AppendLine($"//.dw\t 0x00000000\r\n");
+        sb.AppendLine($"//.dw\t0x00000000\r\n");
 
         sb.AppendLine($".org\t0x{sys.routine:X8}");
 

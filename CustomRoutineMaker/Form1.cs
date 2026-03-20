@@ -212,7 +212,7 @@ namespace CustomRoutineMaker
 
                 string system = systems[comboBox1.SelectedIndex].shortname;
                 string name = systems[comboBox1.SelectedIndex].name;
-                uint addr = 0;
+                uint addr = systems[comboBox1.SelectedIndex].origaddr;
 
                 //int pos = textAsm.Text.LastIndexOf(".definelabel");
                 //if (pos > -1)
