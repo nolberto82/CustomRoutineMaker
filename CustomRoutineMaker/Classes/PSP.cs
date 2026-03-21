@@ -151,7 +151,7 @@ internal class PSP
                     if (cwcheat)
                         lines[i] += $"0x{a[1]}";
                     else
-                        lines[i] += $"{a[1]}";
+                        lines[i] += $"0x{a[1]}";
                 }
                 else if (lines[i][..2] == "_L")
                     lines[i] = $"_L 0x{lines[i][..8]} 0x{lines[i][9..]}";
