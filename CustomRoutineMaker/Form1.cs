@@ -131,6 +131,7 @@ namespace CustomRoutineMaker
 
         private void BtnAssemble_Click(object sender, EventArgs e)
         {
+            FormatText();
             SaveFile();
 
             if (asm_filename == "" || asm_filename == null)
@@ -451,12 +452,6 @@ namespace CustomRoutineMaker
                 contents[i] = text;
             }
             textAsm.Text = string.Join(Environment.NewLine, contents);
-        }
-
-        private void BtnFormat_Click(object sender, EventArgs e)
-        {
-            FormatText();
-            SaveFile();
         }
     }
 }

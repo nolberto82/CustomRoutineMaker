@@ -28,7 +28,7 @@ internal class NDS
         sb.AppendLine("");
 
         sb.AppendLine($"//ecode:");
-        sb.AppendLine($"//.dw\t0xe0000000");
+        sb.AppendLine($"//.dw\t0xe2000000");
         sb.AppendLine($"//evalue:");
         sb.AppendLine($"//.dw\t0x00000000\r\n");
 
@@ -101,8 +101,12 @@ internal class NDS
             evalue = Convert.ToInt32(asm.Substring(index + 1, 8), 16);
         }
 
-        list.Add($"5{bl[0].Substring(1,7):X8} {evalue:X8}");
-        list.AddRange(bl);
+        if (bl.Count != 0)
+        {
+            list.Add($"5{bl[0].Substring(1, 7):X8} {evalue:X8}");
+            list.AddRange(bl);
+        }
+
         list.Insert(0, $"{eaddr:X8} {lines.Count * 4:X8}");
         list.Add($"D2000000 00000000");
 

@@ -16,12 +16,13 @@ internal class PS2
         //sb.AppendLine(@".create ""out.bin"", 0x" + addr.ToString("X8").PadLeft(8, '0'));
         sb.AppendLine(@".ps2");
         sb.AppendLine(@".create ""out.bin"", 0x20000000");
+        sb.AppendLine(@".definelabel hook, 0x20000000");
+        sb.AppendLine(@".definelabel function, 0x200a0000");
 
         sb.AppendLine("\n");
 
-        sb.AppendLine($".org\t0x20000000");
-        sb.AppendLine($"j\t0x200A0000");
-        sb.AppendLine($"return:");
+        sb.AppendLine($".org\thook");
+        sb.AppendLine($"j\tfunction\r\nreturn:");
 
         sb.AppendLine("");
 

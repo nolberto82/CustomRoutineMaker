@@ -149,18 +149,18 @@ internal class PSP
                 {
                     lines[i] = $"_L 0x{(type == 8 ? v - 0x08800000 | 0x20000000 : v):X8} ";
                     if (cwcheat)
-                        lines[i] += $"0x{a[1]}";
+                        lines[i] += $"{a[1]}";
                     else
-                        lines[i] += $"0x{a[1]}";
+                        lines[i] += $"{a[1]}";
                 }
                 else if (lines[i][..2] == "_L")
                     lines[i] = $"_L 0x{lines[i][..8]} 0x{lines[i][9..]}";
 
 
-                pspaddrs.Add($"0x{(type == 8 ? v - 0x08800000 | 0x20000000 : v):X8} 0x{a[1]}");
+                pspaddrs.Add($"0x{(type == 8 ? v - 0x08800000 | 0x20000000 : v):X8} {a[1]}");
 
                 if (cwcheat)
-                    list.Add($"_L {lines[i]}");
+                    list.Add($"{lines[i]}");
                 else
                     list.Add($"{lines[i]}");
             }

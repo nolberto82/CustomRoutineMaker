@@ -47,7 +47,6 @@ namespace CustomRoutineMaker
             textResult2 = new System.Windows.Forms.TextBox();
             textBox1 = new System.Windows.Forms.TextBox();
             textAsm = new System.Windows.Forms.TextBox();
-            btnFormat = new System.Windows.Forms.Button();
             statusBar.SuspendLayout();
             SuspendLayout();
             // 
@@ -64,10 +63,10 @@ namespace CustomRoutineMaker
             // 
             // btnOpen
             // 
-            btnOpen.Location = new System.Drawing.Point(155, 38);
+            btnOpen.Location = new System.Drawing.Point(221, 39);
             btnOpen.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             btnOpen.Name = "btnOpen";
-            btnOpen.Size = new System.Drawing.Size(125, 32);
+            btnOpen.Size = new System.Drawing.Size(200, 32);
             btnOpen.TabIndex = 4;
             btnOpen.Text = "Open Asm";
             btnOpen.UseVisualStyleBackColor = true;
@@ -94,7 +93,7 @@ namespace CustomRoutineMaker
             btnNew.Location = new System.Drawing.Point(11, 38);
             btnNew.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             btnNew.Name = "btnNew";
-            btnNew.Size = new System.Drawing.Size(125, 32);
+            btnNew.Size = new System.Drawing.Size(200, 32);
             btnNew.TabIndex = 7;
             btnNew.Text = "New File";
             btnNew.UseVisualStyleBackColor = true;
@@ -227,23 +226,11 @@ namespace CustomRoutineMaker
             textAsm.Size = new System.Drawing.Size(410, 654);
             textAsm.TabIndex = 23;
             // 
-            // btnFormat
-            // 
-            btnFormat.Location = new System.Drawing.Point(297, 38);
-            btnFormat.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            btnFormat.Name = "btnFormat";
-            btnFormat.Size = new System.Drawing.Size(125, 32);
-            btnFormat.TabIndex = 24;
-            btnFormat.Text = "Format";
-            btnFormat.UseVisualStyleBackColor = true;
-            btnFormat.Click += BtnFormat_Click;
-            // 
             // Form1
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(8F, 18F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             ClientSize = new System.Drawing.Size(1184, 761);
-            Controls.Add(btnFormat);
             Controls.Add(textAsm);
             Controls.Add(textBox1);
             Controls.Add(textResult2);
@@ -293,7 +280,6 @@ namespace CustomRoutineMaker
         private System.Windows.Forms.TextBox textResult2;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.TextBox textAsm;
-        private System.Windows.Forms.Button btnFormat;
     }
 }
 

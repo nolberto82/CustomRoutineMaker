@@ -19,8 +19,8 @@ internal class PS1
 
         sb.AppendLine("\n");
 
-        sb.AppendLine($".org\t hook");
-        sb.AppendLine($"j\t function");
+        sb.AppendLine($".org\thook");
+        sb.AppendLine($"j\tfunction\r\nreturn:");
 
         sb.AppendLine("");
 
@@ -35,7 +35,7 @@ internal class PS1
         sb.AppendLine("");
         sb.AppendLine("");
 
-        sb.AppendLine($"j\thook+8");
+        sb.AppendLine($"j\treturn+4");
 
         sb.AppendLine(".close");
 
