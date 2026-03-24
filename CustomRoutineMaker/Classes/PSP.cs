@@ -143,21 +143,23 @@ internal class PSP
             {
                 lines[i] = lines[i].ToUpper().Replace("X", "x").Replace("\r", "").Replace("_L ", "");
                 var a = lines[i].TrimStart().Split(" ");
+                if (a[0].Length != 8)
+                    continue;
+
                 var v = Convert.ToInt32(a[0], 16);
                 var type = (v >> 24) & 0xff;
                 if (type >= 8)
                 {
                     lines[i] = $"_L 0x{(type == 8 ? v - 0x08800000 | 0x20000000 : v):X8} ";
-                    if (cwcheat)
+                    if (a[1].Contains("0x"))
                         lines[i] += $"{a[1]}";
                     else
-                        lines[i] += $"{a[1]}";
+                        lines[i] += $"0x{a[1]}";
                 }
                 else if (lines[i][..2] == "_L")
                     lines[i] = $"_L 0x{lines[i][..8]} 0x{lines[i][9..]}";
 
-
-                pspaddrs.Add($"0x{(type == 8 ? v - 0x08800000 | 0x20000000 : v):X8} {a[1]}");
+                pspaddrs.Add($"{lines[i].Replace("_L ","")}");
 
                 if (cwcheat)
                     list.Add($"{lines[i]}");
