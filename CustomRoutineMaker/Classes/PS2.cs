@@ -52,9 +52,6 @@ internal class PS2
         sb[1] = new();
         int linesnum = 0;
 
-        sb[0].Append("//PCSX2\r\n");
-        sb[1].Append("//PS2\r\n");
-
         for (int i = 0; i < data.Length / 4; i++)
         {
             int[] value = new int[1];
@@ -86,13 +83,14 @@ internal class PS2
 
             if (index > -1 && evalue > 0)
             {
-                eaddr = eaddr.Remove(2, 2).Insert(2, $"{linesnum:X2}");
-                sb[0].Insert(0, $"patch=1,EE,{eaddr.ToUpper()} " +
-                    $"{evalue:X8}\r\n");
-                sb[1].Insert(0, $"{eaddr.ToUpper()} " +
-                    $"{evalue:X8}\r\n");
+                evalue = (uint)(evalue | (int)(linesnum << 24));
+                sb[0].Insert(0, $"patch=1,EE,{eaddr.ToUpper()},extended,{evalue:X8}\r\n");
+                sb[1].Insert(0, $"{eaddr.ToUpper()} {evalue:X8}\r\n");
             }
         }
+
+        sb[0].Insert(0, "//PCSX2\r\n");
+        sb[1].Insert(0, "//PS2\r\n");
 
         list.AddRange(sb[0].ToString().Split(Environment.NewLine));
         list.AddRange(sb[1].ToString().Split(Environment.NewLine));
@@ -121,7 +119,10 @@ internal class PS2
                     list.Add(" ");
                     continue;
                 }
-                list.Add($"{ns[..8]:X4} {ns.Substring(8, 8):X8}");
+                if (lines[i].StartsWith("patch"))
+                    list.Add($"{ns[..8]:X4} {ns.Substring(8, 8):X8}");
+                else
+                    list.Add($"patch=1,EE,{ns[..8]:X4},extended,{ns.Substring(8, 8):X8}");
             }
         }
 
