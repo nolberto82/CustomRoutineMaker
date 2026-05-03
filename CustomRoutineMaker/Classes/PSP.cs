@@ -150,7 +150,7 @@ internal class PSP
                 var type = (v >> 24) & 0xff;
                 if (type >= 8)
                 {
-                    lines[i] = $"_L 0x{(type == 8 ? v - 0x08800000 | 0x20000000 : v):X8} ";
+                    lines[i] = $"_L 0x{(type >= 8 && type < 13 ? v - 0x08800000 | 0x20000000 : v):X8} ";
                     if (a[1].Contains("0x"))
                         lines[i] += $"{a[1]}";
                     else
@@ -159,7 +159,7 @@ internal class PSP
                 else if (lines[i][..2] == "_L")
                     lines[i] = $"_L 0x{lines[i][..8]} 0x{lines[i][9..]}";
 
-                pspaddrs.Add($"{lines[i].Replace("_L ","")}");
+                pspaddrs.Add($"{lines[i].Replace("_L ", "")}");
 
                 if (cwcheat)
                     list.Add($"{lines[i]}");
