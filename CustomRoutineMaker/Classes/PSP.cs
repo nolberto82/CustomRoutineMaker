@@ -121,16 +121,15 @@ internal class PSP
 
             if (!ns.StartsWith('C') && !ns.StartsWith('L') && !ns.All(char.IsAsciiHexDigit))
             {
-                list.Add($"_C0 {lines[i]}");
-                pspaddrs.Add($"{lines[i]}");
+                list.Add($"_C0 {lines[i].ReplaceLineEndings("")}");
+                pspaddrs.Add($"{lines[i].ReplaceLineEndings("")}");
                 continue;
             }
 
-            if (lines[i].Length < 16) continue;
-
-            if (lines[i].StartsWith('\r') || lines[i].StartsWith("\r\n"))
+            if (lines[i].Length < 16 || lines[i].StartsWith('\r') || lines[i].StartsWith("\r\n"))
             {
-                list.Add(" ");
+                list.Add("");
+                pspaddrs.Add("");
                 continue;
             }
 
