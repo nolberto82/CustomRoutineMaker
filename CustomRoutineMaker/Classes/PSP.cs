@@ -25,12 +25,12 @@ internal class PSP
         sb.AppendLine("");
 
         sb.AppendLine($".org\thook");
-        sb.AppendLine($"j\tfunction");
+        sb.AppendLine($"j\tfunction\r\nreturn:");
 
         sb.AppendLine("");
 
         sb.AppendLine($"//ecode:");
-        sb.AppendLine($"//.dw\t 0xe0000000");
+        sb.AppendLine($"//.dw\t0xe0000000");
         sb.AppendLine($"//evalue:");
         sb.AppendLine($"//.dw\t0x00000000\r\n");
 
@@ -40,7 +40,7 @@ internal class PSP
         sb.AppendLine("");
         sb.AppendLine("");
 
-        sb.AppendLine($"j\thook+8");
+        sb.AppendLine($"j\treturn");
 
         sb.AppendLine(".close");
 

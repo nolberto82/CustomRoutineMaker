@@ -223,6 +223,7 @@ namespace CustomRoutineMaker
             textAsm.Location = new System.Drawing.Point(11, 80);
             textAsm.Multiline = true;
             textAsm.Name = "textAsm";
+            textAsm.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             textAsm.Size = new System.Drawing.Size(410, 654);
             textAsm.TabIndex = 23;
             // 
