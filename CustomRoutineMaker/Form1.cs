@@ -103,6 +103,7 @@ namespace CustomRoutineMaker
                         comboBox1.SelectedItem = s.name;
                     }
                 }
+                UpdateStatusBar();
             }
         }
 
@@ -127,6 +128,7 @@ namespace CustomRoutineMaker
             {
                 File.WriteAllText(asm_filename, textAsm.Text);
             }
+            UpdateStatusBar();
         }
 
         private void BtnAssemble_Click(object sender, EventArgs e)
@@ -273,25 +275,6 @@ namespace CustomRoutineMaker
 
                 }
 
-                //else if (system == "ps2")
-                //{
-                //textGS.Text = string.Join(Environment.NewLine, PS2.Run(data, addr, textAsm.Text));
-                //sb2.AppendLine("patch=1,EE," + (addr + 0).ToString("X4") + ",extended," + (number[0]).ToString("X8"));
-                //sb.AppendLine((addr + 0).ToString("X4") + " " + (number[0]).ToString("X8"));
-                //}
-
-                //addr += 4;
-                //}
-                //if (system == "gba")
-                //textGS.Text += CreateGBACodes(data);
-                //else if (system == "psp" || system == "ps2")
-                //{
-                //textGS.Text += sb2.ToString();
-                //textGS.Text += "\r\n";
-                //textGS.Text += sb.ToString();
-                // }
-                //else
-                //    textGS.Text = sb.ToString();
                 DeleteTempFiles();
             }
         }
@@ -302,14 +285,14 @@ namespace CustomRoutineMaker
                 File.Delete("out.bin");
         }
 
-        private void TextAsm_Click(object sender, EventArgs e)
+        private void textAsm_Click(object sender, EventArgs e)
         {
             UpdateStatusBar();
         }
 
         private void UpdateStatusBar(string selectedlinesnum = "")
         {
-            statusAsm.Text = $"Line Number: {textAsm.GetLineFromCharIndex(textAsm.SelectionStart)} {selectedlinesnum}";
+            statusAsm.Text = $"Line Number: {textAsm.GetLineFromCharIndex(textAsm.SelectionStart)} {selectedlinesnum} | {Path.GetFileName(asm_filename)}";
             statusBar.Invalidate();
             statusBar.Refresh();
         }
@@ -418,7 +401,7 @@ namespace CustomRoutineMaker
         private void TextInput_TextChanged(object sender, EventArgs e)
         {
             textInput.Text = textInput.Text.Replace(" ", "");
-            if (textInput.Text.Length > 0 && textInput.Text.All(c => "0123456789abcdefABCDEF".Contains(c)))
+            if (textInput.Text.Length > 0 && textInput.Text.All(static c => "0123456789abcdefABCDEF".Contains(c)))
             {
                 textResult.Text = "";
                 textResult2.Text = "";
@@ -436,7 +419,7 @@ namespace CustomRoutineMaker
             List<string> contents = [.. textAsm.Lines];
             for (int i = 0; i < contents.Count; i++)
             {
-                var text = contents[i];
+                var text = contents[i].Replace("\t", " ");
                 if (text == string.Empty) continue;
                 if (text.StartsWith('$'))
                 {
@@ -445,11 +428,15 @@ namespace CustomRoutineMaker
                 }
                 text = text.Replace("  ", "").Replace(" #$", "0x").Replace(", ", ",").Replace("  ", "");
                 var split = text.Split(" ");
-                if (split.Length > 1)
+                string newtext = string.Empty;
+                for (int j = 0; j < split.Length; j++)
                 {
-                    text = $"{split[0]}\t{split[1]}";
+                    if (split[0].Contains("//ecode:"))
+                        newtext += $"{split[j]} ";
+                    else
+                        newtext += $"{split[j]}\t";
                 }
-                contents[i] = text;
+                contents[i] = newtext.TrimEnd();
             }
             textAsm.Text = string.Join(Environment.NewLine, contents);
         }

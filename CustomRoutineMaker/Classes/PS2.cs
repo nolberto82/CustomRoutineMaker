@@ -11,36 +11,7 @@ internal class PS2
 {
     public static string Initialize()
     {
-        StringBuilder sb = new();
-
-        //sb.AppendLine(@".create ""out.bin"", 0x" + addr.ToString("X8").PadLeft(8, '0'));
-        sb.AppendLine(@".ps2");
-        sb.AppendLine(@".create ""out.bin"", 0x20000000");
-        sb.AppendLine(@".definelabel hook, 0x20000000");
-        sb.AppendLine(@".definelabel function, 0x200a0000");
-
-        sb.AppendLine("\n");
-
-        sb.AppendLine($".org\thook");
-        sb.AppendLine($"j\tfunction\r\nreturn:");
-
-        sb.AppendLine("");
-
-        sb.AppendLine($"//ecode:");
-        sb.AppendLine($"//.dw\t0xe0000000");
-        sb.AppendLine($"//evalue:");
-        sb.AppendLine($"//.dw\t0x00000000\r\n");
-
-        sb.AppendLine($".org\t0x200A0000");
-
-        sb.AppendLine("\n");
-        sb.AppendLine("\n");
-
-        sb.AppendLine($"j\treturn+4");
-
-        sb.AppendLine(".close");
-
-        return sb.ToString();
+        return Common.InitiatizeMips(".ps2", "0x20000000", "0x20000000", "0x200a0000").ToString();
     }
 
     public static List<string> Run(byte[] data, uint addr, string asm)
@@ -66,27 +37,11 @@ internal class PS2
             addr += 4;
         }
 
-        int index = asm.IndexOf("//ecode:");
-
-        if (index > 0)
+        (uint, uint) conditional = Common.GetConditional(asm);
+        if (conditional != (0, 0))
         {
-            while (asm[index] != 'x')
-                index++;
-
-            string eaddr = asm.Substring(index + 1, 8);
-            index = asm.IndexOf("//evalue:");
-
-            while (asm[index] != 'x')
-                index++;
-
-            uint evalue = Convert.ToUInt32(asm.Substring(index + 1, 8), 16);
-
-            if (index > -1 && evalue > 0)
-            {
-                evalue = (uint)(evalue | (int)(linesnum << 24));
-                sb[0].Insert(0, $"patch=1,EE,{eaddr.ToUpper()},extended,{evalue:X8}\r\n");
-                sb[1].Insert(0, $"{eaddr.ToUpper()} {evalue:X8}\r\n");
-            }
+            sb[0].Insert(0, $"patch=1,EE,{conditional.Item1:X8},extended,{conditional.Item2:X8}\r\n");
+            sb[1].Insert(0, $"{conditional.Item1:X8} {conditional.Item2:X8}\r\n");
         }
 
         sb[0].Insert(0, "//PCSX2\r\n");

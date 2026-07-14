@@ -10,36 +10,7 @@ internal class PS1
 {
     public static string Initialize()
     {
-        StringBuilder sb = new();
-
-        sb.AppendLine(@".psx");
-        sb.AppendLine(@".create ""out.bin"", 0x80000000");
-        sb.AppendLine(@".definelabel hook, 0x80000000");
-        sb.AppendLine(@".definelabel function, 0x80007600");
-
-        sb.AppendLine("\n");
-
-        sb.AppendLine($".org\thook");
-        sb.AppendLine($"j\tfunction\r\nreturn:");
-
-        sb.AppendLine("");
-
-        sb.AppendLine($"//ecode:");
-        sb.AppendLine($"//.dw\t0xd0000000");
-        sb.AppendLine($"//evalue:");
-        sb.AppendLine($"//.dh\t0x0000\r\n");
-
-        sb.AppendLine($".org\tfunction");
-
-        sb.AppendLine("");
-        sb.AppendLine("");
-        sb.AppendLine("");
-
-        sb.AppendLine($"j\treturn+4");
-
-        sb.AppendLine(".close");
-
-        return sb.ToString();
+        return Common.InitiatizeMips(".psx", "0x80000000", "0x80000000", "0x80007600").ToString();
     }
 
     public static List<string> Run(byte[] data, uint addr, string asm)
@@ -63,29 +34,10 @@ internal class PS1
             addr += 4;
         }
 
-        int index = asm.IndexOf("//ecode:");
-
-        if (index > 0)
+        (uint, uint) conditional = Common.GetConditional(asm);
+        if (conditional != (0, 0))
         {
-            while (asm[index] != 'x')
-                index++;
-
-            string eaddr = asm.Substring(index + 1, 8);
-            index = asm.IndexOf("//evalue:");
-
-            while (asm[index] != 'x')
-                index++;
-
-            uint evalue = System.Convert.ToUInt32(asm.Substring(index + 1, 4), 16);
-
-            if (index > -1 && evalue > 0)
-            {
-                eaddr = eaddr.Remove(2, 2).Insert(2, $"{linesnum:X2}");
-                sb.Insert(0, $"patch=1,EE,{eaddr.ToUpper()} " +
-                    $"{evalue:X8}\r\n");
-                sb.Insert(0, $"{eaddr.ToUpper()} " +
-                    $"{evalue:X8}\r\n");
-            }
+            sb.Insert(0, $"{conditional.Item1:X8} {conditional.Item2:X4}\r\n");
         }
 
         list.AddRange(sb.ToString().Split(Environment.NewLine));

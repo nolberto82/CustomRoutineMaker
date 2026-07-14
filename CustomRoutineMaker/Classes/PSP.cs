@@ -14,37 +14,7 @@ internal class PSP
 {
     public static string Initialize()
     {
-        StringBuilder sb = new();
-
-        //sb.AppendLine(@".create ""out.bin"", 0x" + addr.ToString("X8").PadLeft(8, '0'));
-        sb.AppendLine(@".psp");
-        sb.AppendLine(@".create ""out.bin"", 0x00000000");
-        sb.AppendLine(@".definelabel hook, 0x08800000");
-        sb.AppendLine(@".definelabel function, 0x08801000");
-
-        sb.AppendLine("");
-
-        sb.AppendLine($".org\thook");
-        sb.AppendLine($"j\tfunction\r\nreturn:");
-
-        sb.AppendLine("");
-
-        sb.AppendLine($"//ecode:");
-        sb.AppendLine($"//.dw\t0xe0000000");
-        sb.AppendLine($"//evalue:");
-        sb.AppendLine($"//.dw\t0x00000000\r\n");
-
-        sb.AppendLine($".org\tfunction");
-
-        sb.AppendLine("");
-        sb.AppendLine("");
-        sb.AppendLine("");
-
-        sb.AppendLine($"j\treturn");
-
-        sb.AppendLine(".close");
-
-        return sb.ToString();
+        return Common.InitiatizeMips(".psp", "0x08800000", "0x08800000", "0x08801000").ToString();
     }
 
     public static List<string> Run(byte[] data, uint addr, string asm)
@@ -60,42 +30,18 @@ internal class PSP
 
             if (value[0] != 0 && (value[0] & 0xffff0000) != 0xe0000000)
             {
-                sb[0].Append($"_L 0x{addr - 0x08800000 + 0x20000000:X8} 0x{value[0]:X8}\r\n");
-                sb[1].Append($"0x{addr - 0x08800000 + 0x20000000:X8} 0x{value[0]:X8}\r\n");
+                sb[0].Append($"_L 0x{addr + 0x20000000:X8} 0x{value[0]:X8}\r\n");
+                sb[1].Append($"0x{addr + 0x20000000:X8} 0x{value[0]:X8}\r\n");
                 linesnum++;
             }
             addr += 4;
         }
 
-        int index = asm.IndexOf("//ecode:");
-
-        if (index > 0)
+        (uint, uint) conditional = Common.GetConditional(asm);
+        if (conditional != (0, 0))
         {
-            while (asm[index] != 'x')
-                index++;
-
-            string eaddr = asm.Substring(index + 1, 8);
-            index = asm.IndexOf("//evalue:");
-
-            while (asm[index] != 'x')
-                index++;
-
-            string evaluestr = asm.Substring(index + 1, 8);
-            if (evaluestr.Length < 8)
-            {
-                list.Add("evalue less than 8 chars");
-                return list;
-            }
-
-            uint evalue = System.Convert.ToUInt32(evaluestr, 16);
-            if (index > -1 && evalue > 0)
-            {
-                eaddr = eaddr.Remove(2, 2).Insert(2, $"{linesnum:X2}");
-                sb[0].Insert(0, $"_L 0x{eaddr.ToUpper()} " +
-                    $"0x{evalue:X8}\r\n");
-                sb[1].Insert(0, $"0x{eaddr.ToUpper()} " +
-                    $"0x{evalue:X8}\r\n");
-            }
+            sb[0].Insert(0, $"_L {conditional.Item1:X8} 0x{conditional.Item2:X8}\r\n");
+            sb[1].Insert(0, $"{conditional.Item1:X8} {conditional.Item2:X8}\r\n");
         }
 
         list.AddRange(sb[0].ToString().Split(Environment.NewLine));

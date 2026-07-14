@@ -226,6 +226,7 @@ namespace CustomRoutineMaker
             textAsm.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             textAsm.Size = new System.Drawing.Size(410, 654);
             textAsm.TabIndex = 23;
+            textAsm.Click += textAsm_Click;
             // 
             // Form1
             // 
